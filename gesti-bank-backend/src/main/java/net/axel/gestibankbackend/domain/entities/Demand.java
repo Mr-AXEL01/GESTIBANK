@@ -38,11 +38,21 @@ public class Demand {
 
     private Instant createdAt;
 
-    @OneToMany(mappedBy = "demand")
+    @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
     private List<Article> articles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "demand")
+    @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
     private List<Quote> quotes = new ArrayList<>();
 
     private String attachedFile;
+
+    public static Demand createDemand(String title, String description, String fileUrl, AppUser creator) {
+        Demand demand = new Demand();
+        return demand.setTitle(title)
+                .setDescription(description)
+                .setStatus(DemandStatus.CREATED)
+                .setCreatedAt(Instant.now())
+                .setCreatedBy(creator)
+                .setAttachedFile(fileUrl);
+    }
 }

@@ -42,10 +42,10 @@ public class AppUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     private AppRole role;
 
-    @OneToMany(mappedBy = "createdBy")
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     private List<Demand> demands;
 
-    @OneToMany(mappedBy = "createdBy")
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     private List<Quote> quotes;
 
     @Override

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping(DemandController.CONTROLLER_PATH)
 
@@ -24,8 +26,9 @@ public class DemandController {
     private final DemandService service;
 
     @PostMapping
-    public ResponseEntity<DemandResponseDTO> create(@ModelAttribute @Valid DemandRequestDTO dto) {
-        DemandResponseDTO demand = service.create(dto);
+    public ResponseEntity<DemandResponseDTO> create(@ModelAttribute @Valid DemandRequestDTO dto,
+                                                    Principal connectedUser) {
+        DemandResponseDTO demand = service.create(dto, connectedUser.getName());
         return new ResponseEntity<>(demand, HttpStatus.CREATED);
     }
 }

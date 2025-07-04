@@ -5,5 +5,5 @@ import net.axel.gestibankbackend.domain.dtos.demand.responses.DemandResponseDTO;
 
 public interface DemandService {
 
-    DemandResponseDTO create(DemandRequestDTO dto);
+    DemandResponseDTO create(DemandRequestDTO dto, String email);
 }

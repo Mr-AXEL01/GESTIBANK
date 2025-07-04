@@ -25,8 +25,19 @@ public class Article {
 
     private String description;
 
+    private Double price;
+
     private Integer quantity;
 
     @ManyToOne
     private Demand demand;
+
+    public static Article createArticle(String name, String description, double price, int quantity, Demand demand) {
+        Article article = new Article();
+        return article.setName(name)
+                .setDescription(description)
+                .setPrice(price)
+                .setQuantity(quantity)
+                .setDemand(demand);
+    }
 }

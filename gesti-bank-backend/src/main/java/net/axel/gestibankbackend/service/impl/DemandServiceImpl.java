@@ -3,10 +3,21 @@ package net.axel.gestibankbackend.service.impl;
 import lombok.RequiredArgsConstructor;
 import net.axel.gestibankbackend.domain.dtos.demand.requests.DemandRequestDTO;
 import net.axel.gestibankbackend.domain.dtos.demand.responses.DemandResponseDTO;
+import net.axel.gestibankbackend.domain.entities.AppUser;
+import net.axel.gestibankbackend.domain.entities.Article;
+import net.axel.gestibankbackend.domain.entities.Demand;
+import net.axel.gestibankbackend.exception.domains.ResourceNotFoundException;
+import net.axel.gestibankbackend.mapper.DemandMapper;
+import net.axel.gestibankbackend.repository.ArticleRepository;
 import net.axel.gestibankbackend.repository.DemandRepository;
+import net.axel.gestibankbackend.repository.UserRepository;
 import net.axel.gestibankbackend.service.DemandService;
+import net.axel.gestibankbackend.service.FileUploader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -15,9 +26,41 @@ import org.springframework.transaction.annotation.Transactional;
 public class DemandServiceImpl implements DemandService {
 
     private final DemandRepository repository;
+    private final ArticleRepository articleRepository;
+    private final UserRepository userRepository;
+    private final DemandMapper mapper;
+    private final FileUploader fileUploader;
 
     @Override
-    public DemandResponseDTO create(DemandRequestDTO dto) {
-        return null;
+    public DemandResponseDTO create(DemandRequestDTO dto, String email) {
+        AppUser creator = getUser(email);
+
+        String fileUrl = dto.attachedFile() != null && !dto.attachedFile().isEmpty()
+                ? uploadFile(dto.attachedFile())
+                : null;
+
+        Demand demand = repository.save(
+                Demand.createDemand(dto.title(), dto.description(), fileUrl, creator)
+        );
+
+        List<Article> articles = dto.articles().stream()
+                .map(articleDto -> Article.createArticle(
+                                articleDto.name(), articleDto.description(), articleDto.price(), articleDto.quantity(), demand
+                        )
+                ).toList();
+
+        articleRepository.saveAll(articles);
+        demand.setArticles(articles);
+
+        return mapper.toResponseDto(demand);
+    }
+
+    private String uploadFile(MultipartFile file) {
+        return fileUploader.upload(file);
+    }
+
+    private AppUser getUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Creator not exists in system"));
     }
 }
