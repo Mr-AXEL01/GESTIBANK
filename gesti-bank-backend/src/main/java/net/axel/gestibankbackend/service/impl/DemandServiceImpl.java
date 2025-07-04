@@ -13,6 +13,9 @@ import net.axel.gestibankbackend.repository.DemandRepository;
 import net.axel.gestibankbackend.repository.UserRepository;
 import net.axel.gestibankbackend.service.DemandService;
 import net.axel.gestibankbackend.service.FileUploader;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,6 +57,16 @@ public class DemandServiceImpl implements DemandService {
 
         return mapper.toResponseDto(demand);
     }
+
+    @Override
+    public List<DemandResponseDTO> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        return repository.findAll(pageable)
+                .stream()
+                .map(mapper::toResponseDto)
+                .toList();
+    }
+
 
     private String uploadFile(MultipartFile file) {
         return fileUploader.upload(file);

@@ -8,12 +8,10 @@ import net.axel.gestibankbackend.domain.entities.Demand;
 import net.axel.gestibankbackend.service.DemandService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping(DemandController.CONTROLLER_PATH)
@@ -31,4 +29,14 @@ public class DemandController {
         DemandResponseDTO demand = service.create(dto, connectedUser.getName());
         return new ResponseEntity<>(demand, HttpStatus.CREATED);
     }
+
+    @GetMapping
+    public ResponseEntity<List<DemandResponseDTO>> getAllDemands(@RequestParam(defaultValue = "0") int page,
+                                                                 @RequestParam(defaultValue = "10") int size) {
+        List<DemandResponseDTO> demand = service.findAll(page, size);
+        return ResponseEntity.ok(demand);
+    }
+
+//    @GetMapping("/{id}")
+//    pub
 }
