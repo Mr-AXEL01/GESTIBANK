@@ -67,6 +67,13 @@ public class DemandServiceImpl implements DemandService {
                 .toList();
     }
 
+    @Override
+    public DemandResponseDTO findById(Long id) {
+        Demand demand = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Demand", id));
+        return mapper.toResponseDto(demand);
+    }
+
 
     private String uploadFile(MultipartFile file) {
         return fileUploader.upload(file);

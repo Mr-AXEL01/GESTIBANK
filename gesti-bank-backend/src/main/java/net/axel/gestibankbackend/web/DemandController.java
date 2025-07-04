@@ -38,5 +38,8 @@ public class DemandController {
     }
 
     @GetMapping("/{id}")
-    pub
+    public ResponseEntity<DemandResponseDTO> getDemandById(@PathVariable("id") Long id) {
+        DemandResponseDTO demand = service.findById(id);
+        return ResponseEntity.ok(demand);
+    }
 }

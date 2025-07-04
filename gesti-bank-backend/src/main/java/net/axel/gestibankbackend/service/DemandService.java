@@ -9,4 +9,5 @@ public interface DemandService {
 
     DemandResponseDTO create(DemandRequestDTO dto, String email);
     List<DemandResponseDTO> findAll(int page, int size);
+    DemandResponseDTO findById(Long id);
 }
