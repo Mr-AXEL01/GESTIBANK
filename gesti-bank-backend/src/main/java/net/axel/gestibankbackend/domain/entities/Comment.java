@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.axel.gestibankbackend.domain.enums.CommentType;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "comments")
 
@@ -26,6 +28,8 @@ public class Comment {
     private AppUser createdBy;
 
     private String content;
+
+    private Instant createdAt;
 
     private CommentType type;
 

@@ -29,7 +29,7 @@ public class Quote {
 
     private Instant createdAt;
 
-    private Integer totalAmount;
+    private Double totalAmount;
 
     @Enumerated(EnumType.STRING)
     private QuoteStatus status;
