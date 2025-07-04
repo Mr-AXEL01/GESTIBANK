@@ -36,4 +36,7 @@ public class DemandController {
         List<DemandResponseDTO> demand = service.findAll(page, size);
         return ResponseEntity.ok(demand);
     }
+
+    @GetMapping("/{id}")
+    pub
 }
