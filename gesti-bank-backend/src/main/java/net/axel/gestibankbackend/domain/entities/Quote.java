@@ -1,0 +1,39 @@
+package net.axel.gestibankbackend.domain.entities;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+import net.axel.gestibankbackend.domain.enums.QuoteStatus;
+
+import java.time.Instant;
+
+@Entity
+@Table(name = "quotes")
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(chain = true)
+public class Quote {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    private AppUser createdBy;
+
+    private Instant createdAt;
+
+    private Integer totalAmount;
+
+    @Enumerated(EnumType.STRING)
+    private QuoteStatus status;
+
+    @ManyToOne
+    private Demand demand;
+}
