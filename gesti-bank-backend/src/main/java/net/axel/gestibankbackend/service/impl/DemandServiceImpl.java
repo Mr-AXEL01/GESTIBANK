@@ -48,7 +48,7 @@ public class DemandServiceImpl implements DemandService {
 
         List<Article> articles = dto.articles().stream()
                 .map(articleDto -> Article.createArticle(
-                                articleDto.name(), articleDto.description(), articleDto.price(), articleDto.quantity(), demand
+                                articleDto.name(), articleDto.description(), articleDto.quantity(), demand
                         )
                 ).toList();
 

@@ -32,11 +32,10 @@ public class Article {
     @ManyToOne
     private Demand demand;
 
-    public static Article createArticle(String name, String description, double price, int quantity, Demand demand) {
+    public static Article createArticle(String name, String description, int quantity, Demand demand) {
         Article article = new Article();
         return article.setName(name)
                 .setDescription(description)
-                .setPrice(price)
                 .setQuantity(quantity)
                 .setDemand(demand);
     }

@@ -26,7 +26,13 @@ public class CloudinaryService implements FileUploader {
     public String upload(MultipartFile multipartFile) {
         try {
             var tempFile = createTempPath(multipartFile);
-            var folder = cloudinary.uploader().upload(tempFile.toFile(), ObjectUtils.asMap("folder", baseFolder)    );
+            var uploadParams = ObjectUtils.asMap(
+                    "folder", baseFolder,
+                    "resource_type","raw",
+                    "type", "upload"
+            );
+
+            var folder = cloudinary.uploader().upload(tempFile.toFile(), uploadParams);
             return (String) folder.get("url");
         } catch (IOException e) {
             throw new ImageUploadException("Failed to upload file to cloudinary: " + e);

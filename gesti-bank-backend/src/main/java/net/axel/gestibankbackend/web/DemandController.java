@@ -8,6 +8,7 @@ import net.axel.gestibankbackend.domain.entities.Demand;
 import net.axel.gestibankbackend.service.DemandService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -23,6 +24,7 @@ public class DemandController {
 
     private final DemandService service;
 
+    @PreAuthorize("hasAnyRole('AGENT', 'RESPONSIBLE')")
     @PostMapping
     public ResponseEntity<DemandResponseDTO> create(@ModelAttribute @Valid DemandRequestDTO dto,
                                                     Principal connectedUser) {

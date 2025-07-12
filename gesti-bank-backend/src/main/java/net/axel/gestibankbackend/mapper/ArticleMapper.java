@@ -19,7 +19,6 @@ public class ArticleMapper {
                 article.getId(),
                 article.getName(),
                 article.getDescription(),
-                article.getPrice(),
                 article.getQuantity(),
                 demandMapper.toEmbeddedDto(demand)
         );
