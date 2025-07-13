@@ -9,6 +9,8 @@ import lombok.experimental.Accessors;
 import net.axel.gestibankbackend.domain.enums.QuoteStatus;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "quotes")
@@ -36,4 +38,16 @@ public class Quote {
 
     @ManyToOne
     private Demand demand;
+
+    @OneToMany(mappedBy = "quote", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
+    
+    public static Quote createQuote(AppUser creator, Demand demand, Double totalAmount) {
+        Quote quote = new Quote();
+        return quote.setCreatedBy(creator)
+                .setCreatedAt(Instant.now())
+                .setTotalAmount(totalAmount)
+                .setStatus(QuoteStatus.CREATED)
+                .setDemand(demand);
+    }
 }

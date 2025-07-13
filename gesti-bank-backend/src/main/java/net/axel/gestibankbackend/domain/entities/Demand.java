@@ -44,6 +44,9 @@ public class Demand {
     @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
     private List<Quote> quotes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "demand", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
+
     private String attachedFile;
 
     public static Demand createDemand(String title, String description, String fileUrl, AppUser creator) {

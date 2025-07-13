@@ -5,5 +5,6 @@ public enum AppRole {
     RESPONSIBLE,
     TECHNICIAN,
     PROVIDER,
-    MANAGER
+    MANAGER,
+    ADMIN
 }

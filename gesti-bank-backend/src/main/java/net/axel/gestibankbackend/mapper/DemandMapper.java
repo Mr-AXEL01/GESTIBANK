@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class DemandMapper {
 
     private final UserMapper userMapper;
+    private final CommentMapper commentMapper;
 
     public DemandResponseDTO toResponseDto(Demand demand) {
         if (demand == null) return null;
@@ -28,7 +29,7 @@ public class DemandMapper {
                 new ArrayList<>(),
                 userMapper.mapToEmbedded(demand.getCreatedBy()),
                 demand.getStatus(),
-                new ArrayList<>()
+                demand.getComments().stream().map(commentMapper::mapToEmbedded).toList()
         );
     }
 

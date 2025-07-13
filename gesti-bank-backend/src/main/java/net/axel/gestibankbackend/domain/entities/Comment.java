@@ -40,4 +40,13 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "quote_id")
     private Quote quote;
+
+    public static Comment createComment(String content, CommentType type, AppUser creator) {
+        Comment comment = new Comment();
+
+        return  comment.setCreatedBy(creator)
+                .setContent(content)
+                .setType(type)
+                .setCreatedAt(Instant.now());
+    }
 }
