@@ -31,4 +31,9 @@ public class QuoteController {
 
         return new ResponseEntity<>(quote, HttpStatus.CREATED);
     }
+
+//    public ResponseEntity<QuoteResponseDTO> validate(@RequestBody @Valid QuoteValidateDTO dto,
+//                                                     Principal connectedUser) {
+//
+//    }
 }

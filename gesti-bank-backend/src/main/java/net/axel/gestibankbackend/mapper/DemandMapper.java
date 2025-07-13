@@ -24,6 +24,7 @@ public class DemandMapper {
                 demand.getId(),
                 demand.getTitle(),
                 demand.getDescription(),
+                demand.getCreatedAt(),
                 demand.getAttachedFile(),
                 demand.getArticles().stream().map(this::mapArticleToEmbedded).toList(),
                 new ArrayList<>(),
