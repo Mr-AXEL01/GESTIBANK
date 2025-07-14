@@ -4,10 +4,12 @@ import { StatsGrid } from '../common/StatsGrid';
 import { DataTable } from '../common/DataTable';
 import { CreateButton } from '../common/CreateButton';
 import { useDemands, useValidateDemand } from '../../hooks/useDemands';
+import { useCreateQuote } from '../../hooks/useQuotes';
 import { ViewDemandDialog } from '../demand/ViewDemandDialog';
 import { EditDemandDialog } from '../demand/EditDemandDialog';
 import { RejectDemandModal } from '../demand/RejectDemandModal';
 import { RejectionReasonModal } from '../demand/RejectionReasonModal';
+import { CreateDevisModal } from '../demand/CreateDevisModal';
 import type { TableColumn, TableAction } from '../common/DataTable';
 import type { Demand } from '../../types/demand';
 
@@ -16,11 +18,13 @@ export const DashboardOverview: React.FC = () => {
     const { user } = useAuth();
     const { data: demands = [], isLoading } = useDemands();
     const validateDemandMutation = useValidateDemand();
+    const createQuoteMutation = useCreateQuote();
     const [selectedDemand, setSelectedDemand] = useState<Demand | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isReasonModalOpen, setIsReasonModalOpen] = useState(false);
+    const [isDevisModalOpen, setIsDevisModalOpen] = useState(false);
 
     const handleViewDemand = (demand: Demand) => {
         console.log('Viewing demand:', demand);
@@ -124,6 +128,41 @@ export const DashboardOverview: React.FC = () => {
         setSelectedDemand(null);
     };
 
+    const handleCreateDevis = (demand: Demand) => {
+        console.log('Opening create devis modal for demand:', demand);
+        setSelectedDemand(demand);
+        setIsDevisModalOpen(true);
+    };
+
+    const handleConfirmCreateDevis = (totalAmount: number) => {
+        if (!selectedDemand) return;
+        
+        console.log('Creating quote for demand:', selectedDemand, 'with amount:', totalAmount);
+        
+        const quoteData = {
+            totalAmount,
+            demandId: selectedDemand.id
+        };
+
+        createQuoteMutation.mutate(quoteData, {
+            onSuccess: () => {
+                console.log('Quote created successfully');
+                setIsDevisModalOpen(false);
+                setSelectedDemand(null);
+                // TODO: Add toast notification
+            },
+            onError: (error) => {
+                console.error('Failed to create quote:', error);
+                // TODO: Add error toast notification
+            }
+        });
+    };
+
+    const handleCloseDevisModal = () => {
+        setIsDevisModalOpen(false);
+        setSelectedDemand(null);
+    };
+
     // Table config changes based on user role
     const getTableData = () => {
         switch (user?.role) {
@@ -160,7 +199,7 @@ export const DashboardOverview: React.FC = () => {
                         { 
                             key: 'createdAt', 
                             header: 'Created At', 
-                            render: (value: string) => new Date(value).toLocaleDateString()
+                            render: (value: string) => new Date(value).toLocaleString()
                         }
                     ] as TableColumn[],
                     data: demands,
@@ -254,7 +293,7 @@ export const DashboardOverview: React.FC = () => {
                         { 
                             key: 'createdAt', 
                             header: 'Created At', 
-                            render: (value: string) => new Date(value).toLocaleDateString()
+                            render: (value: string) => new Date(value).toLocaleString()
                         }
                     ] as TableColumn[],
                     data: demands.filter(demand => demand.status === 'RESPONSIBLE_APPROVED'),
@@ -281,6 +320,60 @@ export const DashboardOverview: React.FC = () => {
                         }
                     ] as TableAction[]
                 };
+            case 'provider':
+                // Provider sees approved demands and can create quotes/devis
+                return {
+                    title: 'Approved Demands - Create Quotes',
+                    columns: [
+                        { key: 'title', header: 'Title' },
+                        { 
+                            key: 'createdBy', 
+                            header: 'Created By',
+                            render: (value: any) => {
+                                if (typeof value === 'string') return value;
+                                if (typeof value === 'object' && value !== null) {
+                                    return `${value.firstName || ''} ${value.lastName || ''}`.trim() || value.email || 'Unknown';
+                                }
+                                return 'N/A';
+                            }
+                        },
+                        { 
+                            key: 'status', 
+                            header: 'Status', 
+                            render: (value: string) => (
+                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                    value === 'TECHNICIAN_APPROVED' ? 'bg-green-100 text-green-800' : 
+                                    value === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
+                                    value === 'DONE' ? 'bg-purple-100 text-purple-800' : 
+                                    'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                    {value}
+                                </span>
+                            )
+                        },
+                        { 
+                            key: 'createdAt', 
+                            header: 'Created At', 
+                            render: (value: string) => new Date(value).toLocaleString()
+                        }
+                    ] as TableColumn[],
+                    data: demands.filter(demand => demand.status === 'TECHNICIAN_APPROVED'),
+                    actions: [
+                        {
+                            label: 'View',
+                            onClick: (row: Demand) => handleViewDemand(row),
+                            variant: 'primary' as const,
+                            roles: ['provider']
+                        },
+                        {
+                            label: 'Create Devis',
+                            onClick: (row: Demand) => handleCreateDevis(row),
+                            variant: 'secondary' as const,
+                            roles: ['provider'],
+                            condition: (row: Demand) => row.status === 'TECHNICIAN_APPROVED'
+                        }
+                    ] as TableAction[]
+                };
             case 'agent':
             default:
                 // Agent sees their own demands but not technician rejected ones
@@ -303,7 +396,7 @@ export const DashboardOverview: React.FC = () => {
                         { 
                             key: 'createdAt', 
                             header: 'Created At', 
-                            render: (value: string) => new Date(value).toLocaleDateString()
+                            render: (value: string) => new Date(value).toLocaleString()
                         }
                     ] as TableColumn[],
                     data: demands, // Show all demands including technician rejected ones
@@ -400,6 +493,15 @@ export const DashboardOverview: React.FC = () => {
                 isOpen={isReasonModalOpen}
                 onClose={handleCloseReasonModal}
                 demand={selectedDemand}
+            />
+
+            {/* Create devis modal */}
+            <CreateDevisModal
+                isOpen={isDevisModalOpen}
+                onClose={handleCloseDevisModal}
+                onConfirm={handleConfirmCreateDevis}
+                demand={selectedDemand}
+                isLoading={createQuoteMutation.isPending}
             />
         </div>
     );
