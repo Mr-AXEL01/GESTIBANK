@@ -26,6 +26,7 @@ export interface Quote {
   createdAt: string;
   updatedAt?: string;
   rejectionReason?: string; // Add rejection reason field
+  bonCommand?: string; // URL of the attached file
   comments?: Array<{
     id: number;
     content: string;
@@ -55,6 +56,17 @@ export interface Quote {
     lastName: string;
     email: string;
   };
+  attachedFiles?: Array<{
+    id: number;
+    fileName: string;
+    fileUrl: string;
+    uploadedAt: string;
+    uploadedBy?: {
+      id: number;
+      firstName: string;
+      lastName: string;
+    };
+  }>;
 }
 
 export interface QuoteUpdateDTO {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
 import { StatsGrid } from '../common/StatsGrid';
 import { DataTable } from '../common/DataTable';
 import { CreateButton } from '../common/CreateButton';
@@ -12,6 +13,7 @@ import { RejectionReasonModal } from '../demand/RejectionReasonModal';
 import { CreateDevisModal } from '../demand/CreateDevisModal';
 import { AttachFileModal } from '../demand/AttachFileModal';
 import { AttachFileToQuoteModal } from '../demand/AttachFileToQuoteModal';
+import { ViewQuoteModal } from '../demand/ViewQuoteModal';
 import { quoteService } from '../../services/quoteService';
 import type { TableColumn, TableAction } from '../common/DataTable';
 import type { Demand } from '../../types/demand';
@@ -20,6 +22,7 @@ import type { Quote } from '../../services/quoteService';
 // Main dashboard component - shows different content based on user role
 export const DashboardOverview: React.FC = () => {
     const { user } = useAuth();
+    const queryClient = useQueryClient();
     const { data: demands = [], isLoading } = useDemands();
     const { data: quotes = [] } = useQuotes();
     const validateDemandMutation = useValidateDemand();
@@ -31,7 +34,9 @@ export const DashboardOverview: React.FC = () => {
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isReasonModalOpen, setIsReasonModalOpen] = useState(false);
     const [isDevisModalOpen, setIsDevisModalOpen] = useState(false);
+    const [isViewQuoteModalOpen, setIsViewQuoteModalOpen] = useState(false);
     const [isAttachFileModalOpen, setIsAttachFileModalOpen] = useState(false);
+    const [isAttachingFile, setIsAttachingFile] = useState(false);
 
     const handleViewDemand = (demand: Demand) => {
         console.log('Viewing demand:', demand);
@@ -172,11 +177,14 @@ export const DashboardOverview: React.FC = () => {
 
     const handleViewQuote = (quote: Quote) => {
         console.log('Viewing quote:', quote);
-        // For now, just log the quote. You can implement a quote view modal later
-        alert(`Quote #${quote.id} - Amount: $${quote.totalAmount}`);
+        setSelectedQuote(quote);
+        setIsViewQuoteModalOpen(true);
     };
 
     const handleCloseAttachFileModal = () => {
+        // Prevent closing while file is being attached
+        if (isAttachingFile) return;
+        
         setIsAttachFileModalOpen(false);
         setSelectedDemand(null);
         setSelectedQuote(null);
@@ -184,13 +192,26 @@ export const DashboardOverview: React.FC = () => {
 
     const handleConfirmAttachFile = async (quoteId: number, file: File) => {
         try {
+            setIsAttachingFile(true);
             console.log('Attaching file to quote:', quoteId, 'File:', file.name);
             await quoteService.manageQuote(quoteId, file);
             console.log('File attached successfully');
-            handleCloseAttachFileModal();
+            
+            // Invalidate and refetch quotes to show the newly attached file
+            await queryClient.invalidateQueries({ queryKey: ['quotes'] });
+            
+            // Small delay to ensure cache update completes
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Close modal immediately after successful upload
+            setIsAttachFileModalOpen(false);
+            setSelectedDemand(null);
+            setSelectedQuote(null);
         } catch (error) {
             console.error('Error attaching file:', error);
             alert('Failed to attach file. Please try again.');
+        } finally {
+            setIsAttachingFile(false);
         }
     };
 
@@ -627,7 +648,7 @@ export const DashboardOverview: React.FC = () => {
                     onClose={handleCloseAttachFileModal}
                     quote={selectedQuote}
                     onSave={handleConfirmAttachFile}
-                    isLoading={false}
+                    isLoading={isAttachingFile}
                 />
             ) : (
                 <AttachFileModal
@@ -635,9 +656,19 @@ export const DashboardOverview: React.FC = () => {
                     onClose={handleCloseAttachFileModal}
                     demand={selectedDemand}
                     onSave={handleConfirmAttachFile}
-                    isLoading={false}
+                    isLoading={isAttachingFile}
                 />
             )}
+
+            {/* View Quote Modal */}
+            <ViewQuoteModal
+                isOpen={isViewQuoteModalOpen}
+                onClose={() => {
+                    setIsViewQuoteModalOpen(false);
+                    setSelectedQuote(null);
+                }}
+                quote={selectedQuote}
+            />
         </div>
     );
 };

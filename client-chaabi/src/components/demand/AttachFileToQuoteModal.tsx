@@ -36,13 +36,23 @@ export const AttachFileToQuoteModal: React.FC<AttachFileToQuoteModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedFile && quote.id) {
+    if (selectedFile && quote.id && !isLoading) {
       onSave(quote.id, selectedFile);
+      // Clear the selected file after submission
+      setSelectedFile(null);
     }
   };
 
   return (
-    <div className="fixed inset-0  flex items-center justify-center p-4 z-[9999]">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]"
+      onClick={(e) => {
+        // Prevent closing when clicking the backdrop during upload
+        if (e.target === e.currentTarget && !isLoading) {
+          onClose();
+        }
+      }}
+    >
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
