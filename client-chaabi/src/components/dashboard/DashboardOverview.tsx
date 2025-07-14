@@ -4,27 +4,34 @@ import { StatsGrid } from '../common/StatsGrid';
 import { DataTable } from '../common/DataTable';
 import { CreateButton } from '../common/CreateButton';
 import { useDemands, useValidateDemand } from '../../hooks/useDemands';
-import { useCreateQuote } from '../../hooks/useQuotes';
+import { useCreateQuote, useQuotes } from '../../hooks/useQuotes';
 import { ViewDemandDialog } from '../demand/ViewDemandDialog';
 import { EditDemandDialog } from '../demand/EditDemandDialog';
 import { RejectDemandModal } from '../demand/RejectDemandModal';
 import { RejectionReasonModal } from '../demand/RejectionReasonModal';
 import { CreateDevisModal } from '../demand/CreateDevisModal';
+import { AttachFileModal } from '../demand/AttachFileModal';
+import { AttachFileToQuoteModal } from '../demand/AttachFileToQuoteModal';
+import { quoteService } from '../../services/quoteService';
 import type { TableColumn, TableAction } from '../common/DataTable';
 import type { Demand } from '../../types/demand';
+import type { Quote } from '../../services/quoteService';
 
 // Main dashboard component - shows different content based on user role
 export const DashboardOverview: React.FC = () => {
     const { user } = useAuth();
     const { data: demands = [], isLoading } = useDemands();
+    const { data: quotes = [] } = useQuotes();
     const validateDemandMutation = useValidateDemand();
     const createQuoteMutation = useCreateQuote();
     const [selectedDemand, setSelectedDemand] = useState<Demand | null>(null);
+    const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isReasonModalOpen, setIsReasonModalOpen] = useState(false);
     const [isDevisModalOpen, setIsDevisModalOpen] = useState(false);
+    const [isAttachFileModalOpen, setIsAttachFileModalOpen] = useState(false);
 
     const handleViewDemand = (demand: Demand) => {
         console.log('Viewing demand:', demand);
@@ -161,6 +168,30 @@ export const DashboardOverview: React.FC = () => {
     const handleCloseDevisModal = () => {
         setIsDevisModalOpen(false);
         setSelectedDemand(null);
+    };
+
+    const handleViewQuote = (quote: Quote) => {
+        console.log('Viewing quote:', quote);
+        // For now, just log the quote. You can implement a quote view modal later
+        alert(`Quote #${quote.id} - Amount: $${quote.totalAmount}`);
+    };
+
+    const handleCloseAttachFileModal = () => {
+        setIsAttachFileModalOpen(false);
+        setSelectedDemand(null);
+        setSelectedQuote(null);
+    };
+
+    const handleConfirmAttachFile = async (quoteId: number, file: File) => {
+        try {
+            console.log('Attaching file to quote:', quoteId, 'File:', file.name);
+            await quoteService.manageQuote(quoteId, file);
+            console.log('File attached successfully');
+            handleCloseAttachFileModal();
+        } catch (error) {
+            console.error('Error attaching file:', error);
+            alert('Failed to attach file. Please try again.');
+        }
     };
 
     // Table config changes based on user role
@@ -317,6 +348,91 @@ export const DashboardOverview: React.FC = () => {
                             variant: 'danger' as const,
                             roles: ['technician'],
                             condition: (row: Demand) => row.status === 'RESPONSIBLE_APPROVED'
+                        }
+                    ] as TableAction[]
+                };
+            case 'manager':
+                // Manager sees approved quotes/devis and can attach files to them
+                return {
+                    title: 'Approved Quotes/Devis',
+                    columns: [
+                        { 
+                            key: 'id', 
+                            header: 'Quote ID',
+                            render: (value: number) => `#${value}`
+                        },
+                        { 
+                            key: 'totalAmount', 
+                            header: 'Total Amount',
+                            render: (value: number) => `$${value.toFixed(2)}`
+                        },
+                        { 
+                            key: 'demand', 
+                            header: 'Demand Title',
+                            render: (value: any) => value?.title || 'N/A'
+                        },
+                        { 
+                            key: 'provider', 
+                            header: 'Provider',
+                            render: (value: any) => {
+                                if (value) {
+                                    return `${value.firstName || ''} ${value.lastName || ''}`.trim() || value.email || 'N/A';
+                                }
+                                return 'N/A';
+                            }
+                        },
+                        { 
+                            key: 'status', 
+                            header: 'Status', 
+                            render: (value: string) => (
+                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                    value === 'APPROVED' ? 'bg-green-100 text-green-800' : 
+                                    value === 'CREATED' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-red-100 text-red-800'
+                                }`}>
+                                    {value}
+                                </span>
+                            )
+                        },
+                        { 
+                            key: 'createdAt', 
+                            header: 'Created At', 
+                            render: (value: string) => new Date(value).toLocaleDateString()
+                        }
+                    ] as TableColumn[],
+                    data: quotes.filter(quote => quote.status === 'APPROVED'),
+                    actions: [
+                        {
+                            label: 'View',
+                            onClick: (row: Quote) => handleViewQuote(row),
+                            variant: 'primary' as const,
+                            roles: ['manager']
+                        },
+                        {
+                            label: (
+                                <div className="flex items-center gap-1">
+                                    <svg 
+                                        className="w-4 h-4" 
+                                        fill="none" 
+                                        stroke="currentColor" 
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path 
+                                            strokeLinecap="round" 
+                                            strokeLinejoin="round" 
+                                            strokeWidth={2} 
+                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" 
+                                        />
+                                    </svg>
+                                    <span>Attach File</span>
+                                </div>
+                            ),
+                            onClick: (row: Quote) => {
+                                setSelectedQuote(row);
+                                setIsAttachFileModalOpen(true);
+                            },
+                            variant: 'secondary' as const,
+                            roles: ['manager']
                         }
                     ] as TableAction[]
                 };
@@ -503,6 +619,25 @@ export const DashboardOverview: React.FC = () => {
                 demand={selectedDemand}
                 isLoading={createQuoteMutation.isPending}
             />
+
+            {/* Attach file modal */}
+            {user?.role === 'manager' && selectedQuote ? (
+                <AttachFileToQuoteModal
+                    isOpen={isAttachFileModalOpen}
+                    onClose={handleCloseAttachFileModal}
+                    quote={selectedQuote}
+                    onSave={handleConfirmAttachFile}
+                    isLoading={false}
+                />
+            ) : (
+                <AttachFileModal
+                    isOpen={isAttachFileModalOpen}
+                    onClose={handleCloseAttachFileModal}
+                    demand={selectedDemand}
+                    onSave={handleConfirmAttachFile}
+                    isLoading={false}
+                />
+            )}
         </div>
     );
 };

@@ -62,6 +62,11 @@ export interface QuoteUpdateDTO {
   totalAmount: number;
 }
 
+export interface QuoteManageDTO {
+  attachedFile: File;
+  quoteId: number;
+}
+
 class QuoteService {
   private getAuthHeaders(): Record<string, string> {
     const token = localStorage.getItem('authToken');
@@ -165,6 +170,36 @@ class QuoteService {
       return await response.json();
     } catch (error) {
       console.error('Error fetching quote details:', error);
+      throw error;
+    }
+  }
+
+  async manageQuote(quoteId: number, attachedFile: File): Promise<Quote> {
+    try {
+      const formData = new FormData();
+      formData.append('attachedFile', attachedFile);
+      formData.append('quoteId', quoteId.toString());
+
+      const token = localStorage.getItem('authToken');
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/quotes/manage`, {
+        method: 'PUT',
+        headers: headers,
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error managing quote:', error);
       throw error;
     }
   }
