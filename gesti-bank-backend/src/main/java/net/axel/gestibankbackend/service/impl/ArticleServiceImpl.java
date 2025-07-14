@@ -28,7 +28,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public Article update(ArticleUpdateDTO dto) {
-       if ( repository.existsById(dto.id())) throw new ResourceNotFoundException("Article", dto);
+       if (!repository.existsById(dto.id())) throw new ResourceNotFoundException("Article", dto);
 
         Article article = getArticle(dto.id());
         article.setName(dto.name())
