@@ -13,6 +13,7 @@ export interface TableAction {
     variant: 'primary' | 'secondary' | 'danger';
     roles: string[];
     icon?: React.ReactNode;
+    condition?: (row: any) => boolean; // Optional condition function
 }
 
 interface DataTableProps {
