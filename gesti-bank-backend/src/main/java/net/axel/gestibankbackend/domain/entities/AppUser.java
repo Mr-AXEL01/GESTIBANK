@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,10 +44,10 @@ public class AppUser implements UserDetails {
     private AppRole role;
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
-    private List<Demand> demands;
+    private List<Demand> demands = new ArrayList<>();
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
-    private List<Quote> quotes;
+    private List<Quote> quotes = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

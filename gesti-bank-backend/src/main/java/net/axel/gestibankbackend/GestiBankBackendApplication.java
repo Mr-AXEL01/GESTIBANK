@@ -36,7 +36,10 @@ public class GestiBankBackendApplication {
         AppUser manager = new AppUser(null, "manager", "manager", "manager@chaabi.com", passwordEncoder.encode("12345678"),
                 Instant.now(), AppRole.MANAGER, new ArrayList<>(), new ArrayList<>());
 
-        userRepository.saveAll(List.of(agent, responsible, technician, provider, manager));
+        AppUser admin = new AppUser(null, "admin", "admin", "admin@chaabi.com", passwordEncoder.encode("12345678"),
+                Instant.now(), AppRole.ADMIN, new ArrayList<>(), new ArrayList<>());
+
+        userRepository.saveAll(List.of(agent, responsible, technician, provider, manager, admin));
         System.out.println("main users have been saved with them roles");
     }
 
