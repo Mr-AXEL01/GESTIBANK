@@ -2,6 +2,7 @@ package net.axel.gestibankbackend.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import net.axel.gestibankbackend.domain.dtos.user.responses.UserResponseDTO;
+import net.axel.gestibankbackend.exception.domains.ResourceNotFoundException;
 import net.axel.gestibankbackend.mapper.UserMapper;
 import net.axel.gestibankbackend.repository.UserRepository;
 import net.axel.gestibankbackend.service.UserService;
@@ -30,5 +31,12 @@ public class UserServiceImpl implements UserService {
                 .filter(user -> !user.getEmail().equals(email))
                 .map(mapper::toResponseDTO)
                 .toList();
+    }
+
+    public void remove(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("User" + id);
+        }
+        repository.deleteById(id);
     }
 }

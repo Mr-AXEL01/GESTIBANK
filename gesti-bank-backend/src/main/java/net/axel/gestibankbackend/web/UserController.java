@@ -5,10 +5,7 @@ import net.axel.gestibankbackend.domain.dtos.user.responses.UserResponseDTO;
 import net.axel.gestibankbackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -30,5 +27,11 @@ public class UserController {
                                                               Principal connectedUser) {
         List<UserResponseDTO> users = service.findAllUsers(page, size, connectedUser.getName());
         return ResponseEntity.ok(users);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> removeUser(@PathVariable("id") Long id) {
+        service.remove(id);
+        return ResponseEntity.noContent().build();
     }
 }
