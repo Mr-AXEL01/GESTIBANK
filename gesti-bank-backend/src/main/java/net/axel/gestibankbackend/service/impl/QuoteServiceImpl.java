@@ -3,6 +3,7 @@ package net.axel.gestibankbackend.service.impl;
 import lombok.RequiredArgsConstructor;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteManageDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteRequestDTO;
+import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteUpdateDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteValidateDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.responses.QuoteResponseDTO;
 import net.axel.gestibankbackend.domain.entities.AppUser;
@@ -50,12 +51,24 @@ public class QuoteServiceImpl implements QuoteService {
     }
 
     @Override
+    public QuoteResponseDTO update(QuoteUpdateDTO dto) {
+        Quote quote = findQuoteEntity(dto.id());
+        quote.setTotalAmount(dto.totalAmount());
+        return  mapper.mapToResponse(quote);
+    }
+
+    @Override
     public List<QuoteResponseDTO> findAllQuotes(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
         return repository.findAll(pageable)
                 .stream()
                 .map(mapper::mapToResponse)
                 .toList();
+    }
+
+    @Override
+    public QuoteResponseDTO findById(Long id) {
+        return mapper.mapToResponse(findQuoteEntity(id));
     }
 
     @Override

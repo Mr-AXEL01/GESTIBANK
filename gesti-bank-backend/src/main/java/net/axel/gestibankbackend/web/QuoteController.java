@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteManageDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteRequestDTO;
+import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteUpdateDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteValidateDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.responses.QuoteResponseDTO;
 import net.axel.gestibankbackend.service.QuoteService;
@@ -34,6 +35,13 @@ public class QuoteController {
         return new ResponseEntity<>(quote, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('PROVIDER')")
+    @PostMapping
+    public ResponseEntity<QuoteResponseDTO> update(@RequestBody @Valid QuoteUpdateDTO dto) {
+        QuoteResponseDTO quote = service.update(dto);
+        return ResponseEntity.ok(quote);
+    }
+
     @PreAuthorize("hasAnyRole('PROVIDER', 'TECHNICIAN')")
     @GetMapping
     public ResponseEntity<List<QuoteResponseDTO>> findAll(@RequestParam(defaultValue = "0") int page,
@@ -43,8 +51,15 @@ public class QuoteController {
         return ResponseEntity.ok(quotes);
     }
 
+    @PreAuthorize("hasAnyRole('PROVIDER', 'TECHNICIAN')")
+    @GetMapping("/{id}")
+    public ResponseEntity<QuoteResponseDTO> findById(@PathVariable("id") Long id) {
+        QuoteResponseDTO quote = service.findById(id);
+        return ResponseEntity.ok(quote);
+    }
+
     @PreAuthorize("hasRole('TECHNICIAN')")
-    @PutMapping
+    @PostMapping("/validate")
     public ResponseEntity<QuoteResponseDTO> validate(@RequestBody @Valid QuoteValidateDTO dto,
                                                      Principal connectedUser) {
         QuoteResponseDTO quote = service.validate(dto, connectedUser.getName());
