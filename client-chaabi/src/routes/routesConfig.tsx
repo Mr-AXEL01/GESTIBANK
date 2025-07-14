@@ -8,6 +8,7 @@ import { PublicRoute } from '../components/PublicRoute';
 import { RoleGuard } from '../components/common/RoleGuard';
 import { CreateDemand } from '../pages/dashboard/CreateDemand';
 import { DemandDetails } from '../pages/dashboard/DemandDetails';
+import { Profile } from '../pages/profile/Profile';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 
 export const publicRoutes: RouteObject[] = [
@@ -100,14 +101,9 @@ export const protectedRoutes: RouteObject[] = [
         path: '/dashboard/profile',
         element: (
             <ProtectedRoute>
-                <RoleGuard allowedRoles={['agent', 'responsible']}>
+                <RoleGuard allowedRoles={['agent', 'responsible', 'technician', 'provider', 'manager', 'admin']}>
                     <DashboardLayout>
-                        <div className="space-y-6">
-                            <div className="bg-white p-8 rounded-lg shadow-md text-center">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-4">My Profile</h2>
-                                <p className="text-gray-600">Manage your profile settings</p>
-                            </div>
-                        </div>
+                        <Profile />
                     </DashboardLayout>
                 </RoleGuard>
             </ProtectedRoute>

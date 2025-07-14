@@ -11,6 +11,14 @@ export interface UserResponseDTO {
   quotes?: any[]; // Not used in display
 }
 
+export interface UserRegisterDTO {
+  firstName: string;
+  lastName: string;
+  password: string;
+  email: string;
+  role: string;
+}
+
 class UserService {
   private getAuthHeaders(): Record<string, string> {
     const token = localStorage.getItem('authToken');
@@ -71,6 +79,32 @@ class UserService {
       console.log('User deleted successfully');
     } catch (error) {
       console.error('Error in deleteUser:', error);
+      throw error;
+    }
+  }
+
+  async registerUser(userData: UserRegisterDTO): Promise<UserResponseDTO> {
+    try {
+      console.log('Registering new user:', userData);
+      const response = await fetch(`http://localhost:8080/api/v1/auth/register`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(userData),
+      });
+      
+      console.log('Register response status:', response.status);
+      
+      if (!response.ok) {
+        const error = await response.text();
+        console.error('Register error:', error);
+        throw new Error(error || `HTTP error! status: ${response.status}`);
+      }
+      
+      const newUser = await response.json();
+      console.log('User registered successfully:', newUser);
+      return newUser;
+    } catch (error) {
+      console.error('Error in registerUser:', error);
       throw error;
     }
   }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DataTable } from '../../common/DataTable';
 import { useUsers, useDeleteUser } from '../../../hooks/useUsers';
+import { AddUserModal } from './AddUserModal';
 import type { TableColumn } from '../../common/DataTable';
 import type { UserResponseDTO } from '../../../services/userService';
 
@@ -8,6 +9,7 @@ export const UserManagement: React.FC = () => {
   const { data: users = [], isLoading, error } = useUsers();
   const deleteUserMutation = useDeleteUser();
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   console.log('UserManagement render:', { users, isLoading, error });
 
@@ -124,8 +126,19 @@ export const UserManagement: React.FC = () => {
             <h2 className="text-xl font-semibold text-gray-900">User Management</h2>
             <p className="text-sm text-gray-600 mt-1">View and manage all registered users</p>
           </div>
-          <div className="bg-blue-50 px-4 py-2 rounded-lg">
-            <span className="text-sm font-medium text-blue-700">Total Users: {users.length}</span>
+          <div className="flex items-center space-x-3">
+            <div className="bg-blue-50 px-4 py-2 rounded-lg">
+              <span className="text-sm font-medium text-blue-700">Total Users: {users.length}</span>
+            </div>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Add User
+            </button>
           </div>
         </div>
       </div>
@@ -154,6 +167,12 @@ export const UserManagement: React.FC = () => {
           emptyMessage="No users found"
         />
       </div>
+
+      {/* Add User Modal */}
+      <AddUserModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+      />
     </div>
   );
 };

@@ -7,4 +7,6 @@ import java.util.List;
 public interface UserService {
 
     List<UserResponseDTO> findAllUsers(int page, int size, String email);
+
+    void remove(Long id);
 }
