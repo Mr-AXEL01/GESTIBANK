@@ -42,7 +42,7 @@ public class QuoteController {
         return ResponseEntity.ok(quote);
     }
 
-    @PreAuthorize("hasAnyRole('PROVIDER', 'TECHNICIAN')")
+    @PreAuthorize("hasAnyRole('PROVIDER', 'TECHNICIAN', 'MANAGER')")
     @GetMapping
     public ResponseEntity<List<QuoteResponseDTO>> findAll(@RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "10") int size) {
@@ -51,7 +51,7 @@ public class QuoteController {
         return ResponseEntity.ok(quotes);
     }
 
-    @PreAuthorize("hasAnyRole('PROVIDER', 'TECHNICIAN')")
+    @PreAuthorize("hasAnyRole('PROVIDER', 'TECHNICIAN', 'MANAGER')")
     @GetMapping("/{id}")
     public ResponseEntity<QuoteResponseDTO> findById(@PathVariable("id") Long id) {
         QuoteResponseDTO quote = service.findById(id);
