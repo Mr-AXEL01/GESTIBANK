@@ -14,6 +14,7 @@ import { CreateDevisModal } from '../demand/CreateDevisModal';
 import { AttachFileModal } from '../demand/AttachFileModal';
 import { AttachFileToQuoteModal } from '../demand/AttachFileToQuoteModal';
 import { ViewQuoteModal } from '../demand/ViewQuoteModal';
+import { AdminDashboard } from './admin/AdminDashboard';
 import { quoteService } from '../../services/quoteService';
 import type { TableColumn, TableAction } from '../common/DataTable';
 import type { Demand } from '../../types/demand';
@@ -37,6 +38,11 @@ export const DashboardOverview: React.FC = () => {
     const [isViewQuoteModalOpen, setIsViewQuoteModalOpen] = useState(false);
     const [isAttachFileModalOpen, setIsAttachFileModalOpen] = useState(false);
     const [isAttachingFile, setIsAttachingFile] = useState(false);
+
+    // Debug logs
+    console.log('DashboardOverview - User:', user);
+    console.log('DashboardOverview - User role:', user?.role);
+    console.log('DashboardOverview - Role type:', typeof user?.role);
 
     const handleViewDemand = (demand: Demand) => {
         console.log('Viewing demand:', demand);
@@ -511,6 +517,14 @@ export const DashboardOverview: React.FC = () => {
                         }
                     ] as TableAction[]
                 };
+            case 'admin':
+                // Admin can see all users and manage them
+                return {
+                    title: 'All Users',
+                    columns: [],
+                    data: [],
+                    actions: []
+                };
             case 'agent':
             default:
                 // Agent sees their own demands but not technician rejected ones
@@ -584,23 +598,38 @@ export const DashboardOverview: React.FC = () => {
 
     return (
         <div className="space-y-6">
-            {/* Stats cards */}
-            <StatsGrid />
-            
-            {/* Table header with create button */}
-            <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold text-gray-900">{tableConfig.title}</h3>
-                <CreateButton />
-            </div>
-            
-            {/* Demands table */}
-            <DataTable
-                title=""
-                columns={tableConfig.columns}
-                data={tableConfig.data}
-                actions={tableConfig.actions}
-                emptyMessage={isLoading ? "Loading demands..." : "No demands found"}
-            />
+            {user?.role === 'admin' ? (
+                // Admin sees the AdminDashboard component
+                <AdminDashboard />
+            ) : user?.role === 'manager' ? (
+                // For now, show manager content (can be customized later)
+                <>
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h1 className="text-2xl font-bold text-gray-900 mb-2">Manager Dashboard</h1>
+                        <p className="text-gray-600">Manager-specific content will be added here.</p>
+                    </div>
+                </>
+            ) : (
+                <>
+                    {/* Stats cards */}
+                    <StatsGrid />
+                    
+                    {/* Table header with create button */}
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-xl font-semibold text-gray-900">{tableConfig.title}</h3>
+                        <CreateButton />
+                    </div>
+                    
+                    {/* Demands table */}
+                    <DataTable
+                        title=""
+                        columns={tableConfig.columns}
+                        data={tableConfig.data}
+                        actions={tableConfig.actions}
+                        emptyMessage={isLoading ? "Loading demands..." : "No demands found"}
+                    />
+                </>
+            )}
 
             {/* View demand dialog */}
             <ViewDemandDialog
