@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping(QuoteController.CONTROLLER_PATH)
@@ -31,6 +32,15 @@ public class QuoteController {
         QuoteResponseDTO quote = service.create(dto, connectedUser.getName());
 
         return new ResponseEntity<>(quote, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAnyRole('PROVIDER', 'TECHNICIAN')")
+    @GetMapping
+    public ResponseEntity<List<QuoteResponseDTO>> findAll(@RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "10") int size) {
+        List<QuoteResponseDTO> quotes = service.findAllQuotes(page, size);
+
+        return ResponseEntity.ok(quotes);
     }
 
     @PreAuthorize("hasRole('TECHNICIAN')")

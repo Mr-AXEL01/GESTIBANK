@@ -18,9 +18,14 @@ import net.axel.gestibankbackend.service.CommentService;
 import net.axel.gestibankbackend.service.DemandService;
 import net.axel.gestibankbackend.service.FileUploader;
 import net.axel.gestibankbackend.service.QuoteService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -42,6 +47,15 @@ public class QuoteServiceImpl implements QuoteService {
         Demand demand = demandService.findDemandEntity(dto.demandId());
         Quote quote = Quote.createQuote(creator, demand, dto.totalAmount());
         return mapper.mapToResponse(repository.save(quote));
+    }
+
+    @Override
+    public List<QuoteResponseDTO> findAllQuotes(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+        return repository.findAll(pageable)
+                .stream()
+                .map(mapper::mapToResponse)
+                .toList();
     }
 
     @Override
