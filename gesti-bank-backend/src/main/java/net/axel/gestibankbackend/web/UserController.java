@@ -23,12 +23,13 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> findAllUsers(@RequestParam(defaultValue = "0") int page,
-                                                              @RequestParam(defaultValue = "10") int size,
-                                                              Principal connectedUser) {
+            @RequestParam(defaultValue = "10") int size,
+            Principal connectedUser) {
         List<UserResponseDTO> users = service.findAllUsers(page, size, connectedUser.getName());
         return ResponseEntity.ok(users);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> removeUser(@PathVariable("id") Long id) {
         service.remove(id);

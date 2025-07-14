@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useQueryClient } from '@tanstack/react-query';
 import { StatsGrid } from '../common/StatsGrid';
 import { DataTable } from '../common/DataTable';
 import { CreateButton } from '../common/CreateButton';
 import { useDemands, useValidateDemand } from '../../hooks/useDemands';
-import { useCreateQuote, useQuotes } from '../../hooks/useQuotes';
+import { useCreateQuote, useQuotes, useManageQuote } from '../../hooks/useQuotes';
 import { ViewDemandDialog } from '../demand/ViewDemandDialog';
 import { EditDemandDialog } from '../demand/EditDemandDialog';
 import { RejectDemandModal } from '../demand/RejectDemandModal';
@@ -14,7 +13,7 @@ import { CreateDevisModal } from '../demand/CreateDevisModal';
 import { AttachFileModal } from '../demand/AttachFileModal';
 import { AttachFileToQuoteModal } from '../demand/AttachFileToQuoteModal';
 import { ViewQuoteModal } from '../demand/ViewQuoteModal';
-import { quoteService } from '../../services/quoteService';
+import { AdminDashboard } from './admin/AdminDashboard';
 import type { TableColumn, TableAction } from '../common/DataTable';
 import type { Demand } from '../../types/demand';
 import type { Quote } from '../../services/quoteService';
@@ -22,11 +21,11 @@ import type { Quote } from '../../services/quoteService';
 // Main dashboard component - shows different content based on user role
 export const DashboardOverview: React.FC = () => {
     const { user } = useAuth();
-    const queryClient = useQueryClient();
     const { data: demands = [], isLoading } = useDemands();
     const { data: quotes = [] } = useQuotes();
     const validateDemandMutation = useValidateDemand();
     const createQuoteMutation = useCreateQuote();
+    const manageQuoteMutation = useManageQuote();
     const [selectedDemand, setSelectedDemand] = useState<Demand | null>(null);
     const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -36,7 +35,26 @@ export const DashboardOverview: React.FC = () => {
     const [isDevisModalOpen, setIsDevisModalOpen] = useState(false);
     const [isViewQuoteModalOpen, setIsViewQuoteModalOpen] = useState(false);
     const [isAttachFileModalOpen, setIsAttachFileModalOpen] = useState(false);
+    const [isGeneralAttachModalOpen, setIsGeneralAttachModalOpen] = useState(false);
     const [isAttachingFile, setIsAttachingFile] = useState(false);
+    const [prefilledQuoteId, setPrefilledQuoteId] = useState<number | undefined>(undefined);
+
+    // Debug logs
+    console.log('DashboardOverview - User:', user);
+    console.log('DashboardOverview - User role:', user?.role);
+    console.log('DashboardOverview - Role type:', typeof user?.role);
+    console.log('DashboardOverview - Quotes available:', quotes);
+    console.log('DashboardOverview - Demands available:', demands);
+
+    // Debug modal state
+    React.useEffect(() => {
+        if (isAttachFileModalOpen) {
+            console.log('Modal opened - selectedQuote:', selectedQuote);
+            console.log('Modal opened - selectedDemand:', selectedDemand);
+            console.log('Modal opened - selectedQuote type:', typeof selectedQuote);
+            console.log('Modal opened - selectedQuote ID:', selectedQuote?.id);
+        }
+    }, [isAttachFileModalOpen, selectedQuote, selectedDemand]);
 
     const handleViewDemand = (demand: Demand) => {
         console.log('Viewing demand:', demand);
@@ -190,18 +208,23 @@ export const DashboardOverview: React.FC = () => {
         setSelectedQuote(null);
     };
 
+    const handleCloseGeneralAttachModal = () => {
+        setIsGeneralAttachModalOpen(false);
+        setSelectedDemand(null);
+        setPrefilledQuoteId(undefined);
+    };
+
     const handleConfirmAttachFile = async (quoteId: number, file: File) => {
         try {
             setIsAttachingFile(true);
             console.log('Attaching file to quote:', quoteId, 'File:', file.name);
-            await quoteService.manageQuote(quoteId, file);
+            
+            await manageQuoteMutation.mutateAsync({
+                quoteId,
+                attachedFile: file
+            });
+            
             console.log('File attached successfully');
-            
-            // Invalidate and refetch quotes to show the newly attached file
-            await queryClient.invalidateQueries({ queryKey: ['quotes'] });
-            
-            // Small delay to ensure cache update completes
-            await new Promise(resolve => setTimeout(resolve, 100));
             
             // Close modal immediately after successful upload
             setIsAttachFileModalOpen(false);
@@ -511,6 +534,14 @@ export const DashboardOverview: React.FC = () => {
                         }
                     ] as TableAction[]
                 };
+            case 'admin':
+                // Admin can see all users and manage them
+                return {
+                    title: 'All Users',
+                    columns: [],
+                    data: [],
+                    actions: []
+                };
             case 'agent':
             default:
                 // Agent sees their own demands but not technician rejected ones
@@ -584,23 +615,252 @@ export const DashboardOverview: React.FC = () => {
 
     return (
         <div className="space-y-6">
-            {/* Stats cards */}
-            <StatsGrid />
-            
-            {/* Table header with create button */}
-            <div className="flex justify-between items-center">
-                <h3 className="text-xl font-semibold text-gray-900">{tableConfig.title}</h3>
-                <CreateButton />
-            </div>
-            
-            {/* Demands table */}
-            <DataTable
-                title=""
-                columns={tableConfig.columns}
-                data={tableConfig.data}
-                actions={tableConfig.actions}
-                emptyMessage={isLoading ? "Loading demands..." : "No demands found"}
-            />
+            {user?.role === 'admin' ? (
+                // Admin sees the AdminDashboard component
+                <AdminDashboard />
+            ) : user?.role === 'manager' ? (
+                // Manager Dashboard - Shows approved demands with quotes ready for file attachment
+                <>
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+                        <h1 className="text-2xl font-bold text-gray-900 mb-2">Manager Dashboard</h1>
+                        <p className="text-gray-600">Manage approved demands and attach files to quotes</p>
+                    </div>
+
+                    {/* Stats for Manager */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <div className="flex items-center">
+                                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                </div>
+                                <div className="ml-4">
+                                    <h3 className="text-lg font-semibold text-gray-900">Approved Demands</h3>
+                                    <p className="text-2xl font-bold text-blue-600">
+                                        {demands.filter(d => d.status === 'TECHNICIAN_APPROVED').length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <div className="flex items-center">
+                                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </div>
+                                <div className="ml-4">
+                                    <h3 className="text-lg font-semibold text-gray-900">Quotes with Files</h3>
+                                    <p className="text-2xl font-bold text-green-600">
+                                        {quotes.filter(q => q.attachedFiles && q.attachedFiles.length > 0).length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <div className="flex items-center">
+                                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                    <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div className="ml-4">
+                                    <h3 className="text-lg font-semibold text-gray-900">Pending Files</h3>
+                                    <p className="text-2xl font-bold text-yellow-600">
+                                        {quotes.filter(q => !q.attachedFiles || q.attachedFiles.length === 0).length}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Approved Demands Table */}
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <div className="px-6 py-4 border-b border-gray-200">
+                            <h2 className="text-lg font-semibold text-gray-900">Approved Demands Ready for File Attachment</h2>
+                            <p className="text-sm text-gray-600 mt-1">Demands approved by technicians with quotes that need file attachments</p>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Demand</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quote ID</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File Status</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {demands
+                                        .filter(demand => demand.status === 'TECHNICIAN_APPROVED')
+                                        .map((demand) => {
+                                            const demandQuotes = quotes.filter(q => q.demandId === demand.id);
+                                            return demandQuotes.length > 0 ? demandQuotes.map((quote) => (
+                                                <tr key={`${demand.id}-${quote.id}`} className="hover:bg-gray-50">
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div>
+                                                            <div className="text-sm font-medium text-gray-900">{demand.title}</div>
+                                                            <div className="text-sm text-gray-500">{demand.description.length > 50 ? demand.description.substring(0, 50) + '...' : demand.description}</div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            {demand.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        #{quote.id}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        {quote.attachedFiles && quote.attachedFiles.length > 0 ? (
+                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                File Attached
+                                                            </span>
+                                                        ) : (
+                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                Needs File
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                                        <button
+                                                            onClick={() => handleViewDemand(demand)}
+                                                            className="text-blue-600 hover:text-blue-900 transition-colors"
+                                                        >
+                                                            View
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                console.log('Attach button clicked - Quote:', quote);
+                                                                console.log('Attach button clicked - Demand:', demand);
+                                                                setSelectedDemand(demand);
+                                                                setSelectedQuote(quote);
+                                                                setIsAttachFileModalOpen(true);
+                                                            }}
+                                                            className="text-orange-600 hover:text-orange-900 transition-colors inline-flex items-center gap-1"
+                                                        >
+                                                            <svg 
+                                                                className="w-4 h-4" 
+                                                                fill="none" 
+                                                                stroke="currentColor" 
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path 
+                                                                    strokeLinecap="round" 
+                                                                    strokeLinejoin="round" 
+                                                                    strokeWidth={2} 
+                                                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" 
+                                                                />
+                                                            </svg>
+                                                            {quote.attachedFiles && quote.attachedFiles.length > 0 ? 'Re-attach' : 'Attach File'}
+                                                        </button>
+                                                        {quote.attachedFiles && quote.attachedFiles.length > 0 && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelectedQuote(quote);
+                                                                    setIsViewQuoteModalOpen(true);
+                                                                }}
+                                                                className="text-purple-600 hover:text-purple-900 transition-colors"
+                                                            >
+                                                                View Quote
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            )) : (
+                                                <tr key={demand.id} className="hover:bg-gray-50">
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div>
+                                                            <div className="text-sm font-medium text-gray-900">{demand.title}</div>
+                                                            <div className="text-sm text-gray-500">{demand.description.length > 50 ? demand.description.substring(0, 50) + '...' : demand.description}</div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            {demand.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        No quotes yet
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                            Waiting for quotes
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                                        <button
+                                                            onClick={() => handleViewDemand(demand)}
+                                                            className="text-blue-600 hover:text-blue-900 transition-colors"
+                                                        >
+                                                            View
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedDemand(demand);
+                                                                // Create a temporary quote ID based on demand ID for demonstration
+                                                                const tempQuoteId = demand.id;
+                                                                console.log(`Using quote ID ${tempQuoteId} for demand ${demand.id}`);
+                                                                setPrefilledQuoteId(tempQuoteId);
+                                                                setIsGeneralAttachModalOpen(true);
+                                                            }}
+                                                            className="text-orange-600 hover:text-orange-900 transition-colors"
+                                                        >
+                                                            Attach
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    {demands.filter(d => d.status === 'TECHNICIAN_APPROVED').length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} className="px-6 py-12 text-center">
+                                                <div className="text-gray-500">
+                                                    <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                    <p className="text-lg font-medium">No approved demands found</p>
+                                                    <p className="text-sm">Approved demands by technicians will appear here</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <>
+                    {/* Stats cards */}
+                    <StatsGrid />
+                    
+                    {/* Table header with create button */}
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-xl font-semibold text-gray-900">{tableConfig.title}</h3>
+                        <CreateButton />
+                    </div>
+                    
+                    {/* Demands table */}
+                    <DataTable
+                        title=""
+                        columns={tableConfig.columns}
+                        data={tableConfig.data}
+                        actions={tableConfig.actions}
+                        emptyMessage={isLoading ? "Loading demands..." : "No demands found"}
+                    />
+                </>
+            )}
 
             {/* View demand dialog */}
             <ViewDemandDialog
@@ -641,8 +901,8 @@ export const DashboardOverview: React.FC = () => {
                 isLoading={createQuoteMutation.isPending}
             />
 
-            {/* Attach file modal */}
-            {user?.role === 'manager' && selectedQuote ? (
+            {/* Attach file modal - automatically uses quote ID when selectedQuote is available */}
+            {isAttachFileModalOpen && selectedQuote ? (
                 <AttachFileToQuoteModal
                     isOpen={isAttachFileModalOpen}
                     onClose={handleCloseAttachFileModal}
@@ -650,7 +910,7 @@ export const DashboardOverview: React.FC = () => {
                     onSave={handleConfirmAttachFile}
                     isLoading={isAttachingFile}
                 />
-            ) : (
+            ) : isAttachFileModalOpen ? (
                 <AttachFileModal
                     isOpen={isAttachFileModalOpen}
                     onClose={handleCloseAttachFileModal}
@@ -658,7 +918,17 @@ export const DashboardOverview: React.FC = () => {
                     onSave={handleConfirmAttachFile}
                     isLoading={isAttachingFile}
                 />
-            )}
+            ) : null}
+
+            {/* General Attach File Modal (for demands without specific quotes) */}
+            <AttachFileModal
+                isOpen={isGeneralAttachModalOpen}
+                onClose={handleCloseGeneralAttachModal}
+                demand={selectedDemand}
+                onSave={handleConfirmAttachFile}
+                isLoading={isAttachingFile}
+                prefilledQuoteId={prefilledQuoteId}
+            />
 
             {/* View Quote Modal */}
             <ViewQuoteModal
