@@ -28,7 +28,7 @@ export interface JWTPayload {
     id: string;
     email: string;
     name: string;
-    role: 'agent' | 'responsible' | 'technician' | 'provider';
+    role: 'agent' | 'responsible' | 'technician' | 'provider' | 'manager';
     iat?: number;
     exp?: number;
 }
@@ -37,7 +37,7 @@ export interface User {
     id: string;
     email: string;
     name: string;
-    role: 'agent' | 'responsible' | 'technician' | 'provider';
+    role: 'agent' | 'responsible' | 'technician' | 'provider' | 'manager';
 }
 
 export class AuthError extends Error {
