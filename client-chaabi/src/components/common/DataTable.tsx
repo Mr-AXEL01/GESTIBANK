@@ -42,11 +42,14 @@ export const DataTable: React.FC<DataTableProps> = ({
         return classes[variant as keyof typeof classes] || classes.primary;
     };
 
-    const canShowAction = (action: TableAction) => {
-        return user?.role && action.roles.includes(user.role);
+    const canShowAction = (action: TableAction, row?: any) => {
+        const hasRole = user?.role && action.roles.includes(user.role);
+        const meetsCondition = !action.condition || action.condition(row);
+        return hasRole && meetsCondition;
     };
 
-    const visibleActions = actions.filter(canShowAction);
+    // Check if any action can be shown for role-based header display
+    const hasAnyActions = actions.some(action => user?.role && action.roles.includes(user.role));
 
     return (
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -65,7 +68,7 @@ export const DataTable: React.FC<DataTableProps> = ({
                                         {column.header}
                                     </th>
                                 ))}
-                                {visibleActions.length > 0 && (
+                                {hasAnyActions && (
                                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
                                         Actions
                                     </th>
@@ -83,19 +86,21 @@ export const DataTable: React.FC<DataTableProps> = ({
                                             }
                                         </td>
                                     ))}
-                                    {visibleActions.length > 0 && (
+                                    {hasAnyActions && (
                                         <td className="px-4 py-3 text-sm">
                                             <div className="flex space-x-2">
-                                                {visibleActions.map((action, actionIndex) => (
-                                                    <button
-                                                        key={actionIndex}
-                                                        onClick={() => action.onClick(row)}
-                                                        className={`px-3 py-1 rounded text-xs font-medium transition duration-200 flex items-center space-x-1 ${getActionButtonClass(action.variant)}`}
-                                                    >
-                                                        {action.icon && <span>{action.icon}</span>}
-                                                        <span>{action.label}</span>
-                                                    </button>
-                                                ))}
+                                                {actions
+                                                    .filter(action => canShowAction(action, row))
+                                                    .map((action, actionIndex) => (
+                                                        <button
+                                                            key={actionIndex}
+                                                            onClick={() => action.onClick(row)}
+                                                            className={`px-3 py-1 rounded text-xs font-medium transition duration-200 flex items-center space-x-1 ${getActionButtonClass(action.variant)}`}
+                                                        >
+                                                            {action.icon && <span>{action.icon}</span>}
+                                                            <span>{action.label}</span>
+                                                        </button>
+                                                    ))}
                                             </div>
                                         </td>
                                     )}

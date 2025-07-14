@@ -130,7 +130,10 @@ export const DashboardOverview: React.FC = () => {
                             label: 'Edit',
                             onClick: (row: Demand) => handleEditDemand(row),
                             variant: 'secondary' as const,
-                            roles: ['agent']
+                            roles: ['agent'],
+                            condition: (row: Demand) => 
+                                row.status === 'RESPONSIBLE_REJECTED' || 
+                                row.status === 'TECHNICIAN_REJECTED'
                         }
                     ] as TableAction[]
                 };
