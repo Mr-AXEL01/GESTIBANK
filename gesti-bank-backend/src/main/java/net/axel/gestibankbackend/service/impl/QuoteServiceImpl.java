@@ -86,6 +86,7 @@ public class QuoteServiceImpl implements QuoteService {
     @Override
     public QuoteResponseDTO manage(QuoteManageDTO dto) {
         Quote quote = findQuoteEntity(dto.quoteId());
+        quote.setStatus(QuoteStatus.DONE);
         Demand demand = quote.getDemand();
         demandService.updateStatus(demand.getId(), "DONE");
 
