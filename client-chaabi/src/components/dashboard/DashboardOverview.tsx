@@ -1,15 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { StatsGrid } from '../common/StatsGrid';
 import { DataTable } from '../common/DataTable';
 import { CreateButton } from '../common/CreateButton';
 import { useDemands } from '../../hooks/useDemands';
+import { ViewDemandDialog } from '../demand/ViewDemandDialog';
+import { EditDemandDialog } from '../demand/EditDemandDialog';
 import type { TableColumn, TableAction } from '../common/DataTable';
+import type { Demand } from '../../types/demand';
 
 // Main dashboard component - shows different content based on user role
 export const DashboardOverview: React.FC = () => {
     const { user } = useAuth();
-    const { data: demands = [], isLoading, error } = useDemands();
+    const { data: demands = [], isLoading } = useDemands();
+    const [selectedDemand, setSelectedDemand] = useState<Demand | null>(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+    const handleViewDemand = (demand: Demand) => {
+        console.log('Viewing demand:', demand);
+        setSelectedDemand(demand);
+        setIsDialogOpen(true);
+    };
+
+    const handleEditDemand = (demand: Demand) => {
+        setSelectedDemand(demand);
+        setIsEditDialogOpen(true);
+    };
+
+    const handleCloseDialog = () => {
+        setIsDialogOpen(false);
+        setSelectedDemand(null);
+    };
+
+    const handleCloseEditDialog = () => {
+        setIsEditDialogOpen(false);
+        setSelectedDemand(null);
+    };
 
     // Table config changes based on user role
     const getTableData = () => {
@@ -20,7 +47,17 @@ export const DashboardOverview: React.FC = () => {
                     title: 'Recent Demands',
                     columns: [
                         { key: 'title', header: 'Title' },
-                        { key: 'createdBy', header: 'Created By' },
+                        { 
+                            key: 'createdBy', 
+                            header: 'Created By',
+                            render: (value: any) => {
+                                if (typeof value === 'string') return value;
+                                if (typeof value === 'object' && value !== null) {
+                                    return `${value.firstName || ''} ${value.lastName || ''}`.trim() || value.email || 'Unknown';
+                                }
+                                return 'N/A';
+                            }
+                        },
                         { 
                             key: 'status', 
                             header: 'Status', 
@@ -44,7 +81,7 @@ export const DashboardOverview: React.FC = () => {
                     actions: [
                         {
                             label: 'View',
-                            onClick: (row: any) => console.log('View demand:', row), // TODO: Navigate to detail page
+                            onClick: (row: Demand) => handleViewDemand(row),
                             variant: 'primary' as const,
                             roles: ['responsable', 'agent']
                         },
@@ -85,13 +122,13 @@ export const DashboardOverview: React.FC = () => {
                     actions: [
                         {
                             label: 'View',
-                            onClick: (row: any) => console.log('View demand:', row), // TODO: Navigate to detail
+                            onClick: (row: Demand) => handleViewDemand(row),
                             variant: 'primary' as const,
                             roles: ['agent', 'responsable']
                         },
                         {
                             label: 'Edit',
-                            onClick: (row: any) => console.log('Edit demand:', row), // TODO: Navigate to edit
+                            onClick: (row: Demand) => handleEditDemand(row),
                             variant: 'secondary' as const,
                             roles: ['agent']
                         }
@@ -120,6 +157,20 @@ export const DashboardOverview: React.FC = () => {
                 data={tableConfig.data}
                 actions={tableConfig.actions}
                 emptyMessage={isLoading ? "Loading demands..." : "No demands found"}
+            />
+
+            {/* View demand dialog */}
+            <ViewDemandDialog
+                isOpen={isDialogOpen}
+                onClose={handleCloseDialog}
+                demand={selectedDemand}
+            />
+
+            {/* Edit demand dialog */}
+            <EditDemandDialog
+                isOpen={isEditDialogOpen}
+                onClose={handleCloseEditDialog}
+                demand={selectedDemand}
             />
         </div>
     );

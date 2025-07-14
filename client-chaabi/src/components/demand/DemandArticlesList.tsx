@@ -7,15 +7,7 @@ interface DemandArticlesListProps {
 
 export const DemandArticlesList: React.FC<DemandArticlesListProps> = ({ articles }) => {
   const getTotalAmount = () => {
-    return articles.reduce((total, article) => total + (article.quantity * article.price), 0);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fr-MA', {
-      style: 'currency',
-      currency: 'MAD',
-      minimumFractionDigits: 2,
-    }).format(price);
+    return articles.reduce((total, article) => total + article.quantity, 0);
   };
 
   return (
@@ -45,22 +37,19 @@ export const DemandArticlesList: React.FC<DemandArticlesListProps> = ({ articles
                   <h4 className="font-medium text-gray-900">{article.name}</h4>
                   <p className="text-sm text-gray-500">{article.description}</p>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="font-medium text-gray-700">Qté :</span> {article.quantity}
                   </div>
                   <div>
-                    <span className="font-medium text-gray-700">Prix :</span> {formatPrice(article.price)}
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Total :</span> {formatPrice(article.quantity * article.price)}
+                    <span className="font-medium text-gray-700">Description :</span> {article.description}
                   </div>
                 </div>
               </div>
             ))}
             <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
-              <span className="font-medium text-gray-900">Montant total :</span>
-              <span className="text-lg font-bold text-orange-600">{formatPrice(getTotalAmount())}</span>
+              <span className="font-medium text-gray-900">Total d'articles :</span>
+              <span className="text-lg font-bold text-orange-600">{getTotalAmount()}</span>
             </div>
           </div>
 
@@ -75,12 +64,6 @@ export const DemandArticlesList: React.FC<DemandArticlesListProps> = ({ articles
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Quantité
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Prix unitaire
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
-                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -93,20 +76,16 @@ export const DemandArticlesList: React.FC<DemandArticlesListProps> = ({ articles
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">{article.quantity}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{formatPrice(article.price)}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                      {formatPrice(article.quantity * article.price)}
-                    </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot className="bg-gray-50">
                 <tr>
-                  <td colSpan={3} className="px-6 py-4 text-right text-sm font-medium text-gray-900">
-                    Montant total :
+                  <td className="px-6 py-4 text-right text-sm font-medium text-gray-900">
+                    Total d'articles :
                   </td>
                   <td className="px-6 py-4 text-lg font-bold text-orange-600">
-                    {formatPrice(getTotalAmount())}
+                    {getTotalAmount()}
                   </td>
                 </tr>
               </tfoot>

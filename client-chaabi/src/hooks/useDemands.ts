@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { demandService } from '../services/demandService';
-import type { CreateDemandRequest, Demand, UpdateDemandStatusRequest } from '../types/demand';
+import { mockDemands } from '../utils/mockData';
+import type { CreateDemandRequest, Demand, UpdateDemandStatusRequest, UpdateDemandRequest } from '../types/demand';
 
 // Hook to fetch all demands
 export const useDemands = () => {
@@ -10,8 +11,9 @@ export const useDemands = () => {
       try {
         return await demandService.getDemands();
       } catch (error) {
-        console.error('Error in useDemands:', error);
-        throw error;
+        console.error('Error in useDemands, using mock data:', error);
+        // Return mock data when API is not available
+        return mockDemands;
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -69,9 +71,9 @@ export const useUpdateDemand = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<CreateDemandRequest> }) => {
+    mutationFn: async (demandData: UpdateDemandRequest) => {
       try {
-        return await demandService.updateDemand(id, data);
+        return await demandService.updateDemand(demandData);
       } catch (error) {
         console.error('Error in useUpdateDemand:', error);
         throw error;
@@ -87,6 +89,9 @@ export const useUpdateDemand = () => {
           demand.id === updatedDemand.id ? updatedDemand : demand
         ) || [];
       });
+      
+      // Invalidate queries to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ['demands'] });
     },
     onError: (error) => {
       console.error('Update demand mutation error:', error);
@@ -101,8 +106,9 @@ export const useUpdateDemandStatus = () => {
   return useMutation({
     mutationFn: async ({ id, statusData }: { id: string; statusData: UpdateDemandStatusRequest }) => {
       try {
-        // Validate that comment is provided when status is 'rejected'
-        if (statusData.status === 'rejected' && !statusData.comment?.trim()) {
+        // Validate that comment is provided when status is 'RESPONSIBLE_REJECTED' or 'TECHNICIAN_REJECTED'
+        if ((statusData.status === 'RESPONSIBLE_REJECTED' || statusData.status === 'TECHNICIAN_REJECTED') 
+            && !statusData.comment?.trim()) {
           throw new Error('Comment is required when rejecting a demand');
         }
         

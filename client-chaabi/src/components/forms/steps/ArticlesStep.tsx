@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useTheme } from '../../../context/ThemeContext';
 import type { Article } from '../../../types/demand';
 
 const articleSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères").max(50, "Le nom doit contenir moins de 50 caractères"),
   quantity: z.number().min(1, "La quantité doit être d'au moins 1").max(1000, "La quantité doit être inférieure à 1000"),
-  price: z.number().min(0.01, "Le prix doit être supérieur à 0").max(999999, "Le prix doit être inférieur à 999999"),
   description: z.string().min(5, "La description doit contenir au moins 5 caractères").max(200, "La description doit contenir moins de 200 caractères"),
 });
 
@@ -27,7 +25,6 @@ export const ArticlesStep: React.FC<ArticlesStepProps> = ({
   onNext, 
   onPrev 
 }) => {
-  const theme = useTheme();
   const [isAddingArticle, setIsAddingArticle] = useState(articles.length === 0);
 
   const {
@@ -40,7 +37,6 @@ export const ArticlesStep: React.FC<ArticlesStepProps> = ({
     defaultValues: {
       name: "",
       quantity: 1,
-      price: 0,
       description: "",
     },
   });
@@ -56,15 +52,7 @@ export const ArticlesStep: React.FC<ArticlesStepProps> = ({
   };
 
   const getTotalAmount = () => {
-    return articles.reduce((total, article) => total + (article.quantity * article.price), 0);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fr-MA', {
-      style: 'currency',
-      currency: 'MAD',
-      minimumFractionDigits: 2,
-    }).format(price);
+    return articles.reduce((total, article) => total + article.quantity, 0);
   };
 
   return (
@@ -162,32 +150,7 @@ export const ArticlesStep: React.FC<ArticlesStepProps> = ({
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Prix unitaire *
-                </label>
-                <Controller
-                  name="price"
-                  control={control}
-                  render={({ field: { onChange, value, ...field } }) => (
-                    <input
-                      {...field}
-                      type="number"
-                      step="0.01"
-                      value={value}
-                      onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
-                        errors.price ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                      placeholder="0.00"
-                      min="0.01"
-                    />
-                  )}
-                />
-                {errors.price && (
-                  <p className="mt-1 text-xs text-red-600">{errors.price.message}</p>
-                )}
-              </div>
+
             </div>
 
             <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
@@ -249,22 +212,19 @@ export const ArticlesStep: React.FC<ArticlesStepProps> = ({
                     Supprimer
                   </button>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="font-medium text-gray-700">Qté :</span> {article.quantity}
                   </div>
                   <div>
-                    <span className="font-medium text-gray-700">Prix :</span> {formatPrice(article.price)}
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Total :</span> {formatPrice(article.quantity * article.price)}
+                    <span className="font-medium text-gray-700">Description :</span> {article.description}
                   </div>
                 </div>
               </div>
             ))}
             <div className="px-4 py-3 bg-gray-50 flex justify-between items-center">
-              <span className="font-medium text-gray-900">Montant total :</span>
-              <span className="text-lg font-bold text-orange-600">{formatPrice(getTotalAmount())}</span>
+              <span className="font-medium text-gray-900">Total d'articles :</span>
+              <span className="text-lg font-bold text-orange-600">{getTotalAmount()}</span>
             </div>
           </div>
 
@@ -283,12 +243,6 @@ export const ArticlesStep: React.FC<ArticlesStepProps> = ({
                     Quantité
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Prix unitaire
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -303,10 +257,6 @@ export const ArticlesStep: React.FC<ArticlesStepProps> = ({
                       <div className="text-sm text-gray-500">{article.description}</div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">{article.quantity}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{formatPrice(article.price)}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                      {formatPrice(article.quantity * article.price)}
-                    </td>
                     <td className="px-6 py-4 text-sm">
                       <button
                         onClick={() => removeArticle(index)}
@@ -320,11 +270,11 @@ export const ArticlesStep: React.FC<ArticlesStepProps> = ({
               </tbody>
               <tfoot className="bg-gray-50">
                 <tr>
-                  <td colSpan={4} className="px-6 py-4 text-right text-sm font-medium text-gray-900">
-                    Montant total :
+                  <td colSpan={2} className="px-6 py-4 text-right text-sm font-medium text-gray-900">
+                    Total d'articles :
                   </td>
                   <td className="px-6 py-4 text-lg font-bold text-orange-600">
-                    {formatPrice(getTotalAmount())}
+                    {getTotalAmount()}
                   </td>
                   <td></td>
                 </tr>

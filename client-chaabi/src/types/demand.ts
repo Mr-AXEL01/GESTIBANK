@@ -3,7 +3,6 @@ export interface Article {
   name: string;
   quantity: number;
   description: string;
-  price: number;
 }
 
 export interface CreateDemandRequest {
@@ -20,14 +19,14 @@ export interface Demand {
   articles: Article[];
   fileName?: string;
   fileUrl?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status:'CREATED' | 'RESPONSIBLE_APPROVED' | 'RESPONSIBLE_REJECTED' | 'TECHNICIAN_APPROVED' | 'TECHNICIAN_REJECTED' | 'IN_PROGRESS' | 'DONE';;
   createdAt: string;
   createdBy: string;
   rejectionComment?: string; // Add rejection comment field
 }
 
 export interface DemandFilters {
-  status?: 'pending' | 'approved' | 'rejected';
+  status?: 'CREATED' | 'RESPONSIBLE_APPROVED' | 'RESPONSIBLE_REJECTED' | 'TECHNICIAN_APPROVED' | 'TECHNICIAN_REJECTED' | 'IN_PROGRESS' | 'DONE';
   search?: string;
   page?: number;
   limit?: number;
@@ -35,6 +34,21 @@ export interface DemandFilters {
 
 // New types for status update
 export interface UpdateDemandStatusRequest {
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'CREATED' | 'RESPONSIBLE_APPROVED' | 'RESPONSIBLE_REJECTED' | 'TECHNICIAN_APPROVED' | 'TECHNICIAN_REJECTED' | 'IN_PROGRESS' | 'DONE';;
   comment?: string; // Required when status is 'rejected'
+}
+
+// Update demand request matching backend DTO
+export interface UpdateDemandRequest {
+  id: number;
+  title: string;
+  description: string;
+  articles: ArticleUpdateDTO[];
+}
+
+export interface ArticleUpdateDTO {
+  id?: number; // Optional for new articles
+  name: string;
+  description: string;
+  quantity: number;
 }

@@ -3,6 +3,7 @@ import type {
   Demand,
   DemandFilters,
   UpdateDemandStatusRequest,
+  UpdateDemandRequest,
 } from "../types/demand";
 
 const API_BASE_URL = "http://localhost:8080/api/v1";
@@ -43,7 +44,6 @@ class DemandService {
       formData.append(`articles[${index}].name`, article.name);
       formData.append(`articles[${index}].quantity`, article.quantity.toString());
       formData.append(`articles[${index}].description`, article.description);
-      formData.append(`articles[${index}].price`, article.price.toString());
     });
 
     if (demandData.file) {
@@ -92,29 +92,14 @@ class DemandService {
     return this.handleResponse<Demand>(response);
   }
 
-  async updateDemand(
-    id: string,
-    demandData: Partial<CreateDemandRequest>
-  ): Promise<Demand> {
-    const formData = new FormData();
-
-    if (demandData.title) formData.append("title", demandData.title);
-    if (demandData.description)
-      formData.append("description", demandData.description);
-    if (demandData.articles) {
-      demandData.articles.forEach((article, index) => {
-        formData.append(`articles[${index}].name`, article.name);
-        formData.append(`articles[${index}].quantity`, article.quantity.toString());
-        formData.append(`articles[${index}].description`, article.description);
-        formData.append(`articles[${index}].price`, article.price.toString());
-      });
-    }
-    if (demandData.file) formData.append("attachedFile", demandData.file);
-
-    const response = await fetch(`${API_BASE_URL}/demands/${id}`, {
+  async updateDemand(demandData: UpdateDemandRequest): Promise<Demand> {
+    const response = await fetch(`${API_BASE_URL}/demands`, {
       method: "PUT",
-      headers: this.getAuthHeaders(),
-      body: formData,
+      headers: {
+        "Content-Type": "application/json",
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(demandData),
     });
 
     return this.handleResponse<Demand>(response);

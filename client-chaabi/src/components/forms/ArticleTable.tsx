@@ -59,15 +59,7 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({ articles, setArticle
   };
 
   const getTotalAmount = () => {
-    return articles.reduce((total, article) => total + (article.quantity * article.price), 0);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fr-MA', {
-      style: 'currency',
-      currency: 'MAD',
-      minimumFractionDigits: 2,
-    }).format(price);
+    return articles.reduce((total, article) => total + article.quantity, 0);
   };
 
   return (
@@ -217,13 +209,10 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({ articles, setArticle
                   Titre
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Description
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Quantité
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Prix
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Total
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                   Actions
@@ -237,13 +226,10 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({ articles, setArticle
                     {article.name}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">
-                    {article.quantity}
+                    {article.description}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900">
-                    {formatPrice(article.price)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-900 font-medium">
-                    {formatPrice(article.quantity * article.price)}
+                    {article.quantity}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <button
@@ -257,13 +243,13 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({ articles, setArticle
               ))}
               <tr className="bg-gray-50">
                 <td
-                  colSpan={3}
+                  colSpan={2}
                   className="px-4 py-3 text-sm font-medium text-gray-900 text-right"
                 >
-                  Montant total :
+                  Total d'articles :
                 </td>
                 <td className="px-4 py-3 text-sm font-bold text-gray-900">
-                  {formatPrice(getTotalAmount())}
+                  {getTotalAmount()}
                 </td>
                 <td></td>
               </tr>
