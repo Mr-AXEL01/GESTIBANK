@@ -3,6 +3,7 @@ package net.axel.gestibankbackend.web;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteRequestDTO;
+import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteValidateDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.responses.QuoteResponseDTO;
 import net.axel.gestibankbackend.service.QuoteService;
 import org.springframework.http.HttpStatus;
@@ -32,8 +33,8 @@ public class QuoteController {
         return new ResponseEntity<>(quote, HttpStatus.CREATED);
     }
 
-//    public ResponseEntity<QuoteResponseDTO> validate(@RequestBody @Valid QuoteValidateDTO dto,
-//                                                     Principal connectedUser) {
-//
-//    }
+    public ResponseEntity<QuoteResponseDTO> validate(@RequestBody @Valid QuoteValidateDTO dto,
+                                                     Principal connectedUser) {
+        service.validate(dto, connectedUser.getName());
+    }
 }
