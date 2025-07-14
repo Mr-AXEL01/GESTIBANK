@@ -8,6 +8,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
     const { user, logout } = useAuth();
+    console.log('Header user:', user);
 
     return (
       <header className="fixed md:ml-65 left-0 right-0 bg-white shadow-sm border-b border-gray-200 ">
