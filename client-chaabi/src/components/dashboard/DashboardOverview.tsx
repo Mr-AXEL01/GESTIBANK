@@ -35,26 +35,12 @@ export const DashboardOverview: React.FC = () => {
     const [isDevisModalOpen, setIsDevisModalOpen] = useState(false);
     const [isViewQuoteModalOpen, setIsViewQuoteModalOpen] = useState(false);
     const [isAttachFileModalOpen, setIsAttachFileModalOpen] = useState(false);
-    const [isGeneralAttachModalOpen, setIsGeneralAttachModalOpen] = useState(false);
     const [isAttachingFile, setIsAttachingFile] = useState(false);
-    const [prefilledQuoteId, setPrefilledQuoteId] = useState<number | undefined>(undefined);
 
     // Debug logs
     console.log('DashboardOverview - User:', user);
     console.log('DashboardOverview - User role:', user?.role);
     console.log('DashboardOverview - Role type:', typeof user?.role);
-    console.log('DashboardOverview - Quotes available:', quotes);
-    console.log('DashboardOverview - Demands available:', demands);
-
-    // Debug modal state
-    React.useEffect(() => {
-        if (isAttachFileModalOpen) {
-            console.log('Modal opened - selectedQuote:', selectedQuote);
-            console.log('Modal opened - selectedDemand:', selectedDemand);
-            console.log('Modal opened - selectedQuote type:', typeof selectedQuote);
-            console.log('Modal opened - selectedQuote ID:', selectedQuote?.id);
-        }
-    }, [isAttachFileModalOpen, selectedQuote, selectedDemand]);
 
     const handleViewDemand = (demand: Demand) => {
         console.log('Viewing demand:', demand);
@@ -206,12 +192,6 @@ export const DashboardOverview: React.FC = () => {
         setIsAttachFileModalOpen(false);
         setSelectedDemand(null);
         setSelectedQuote(null);
-    };
-
-    const handleCloseGeneralAttachModal = () => {
-        setIsGeneralAttachModalOpen(false);
-        setSelectedDemand(null);
-        setPrefilledQuoteId(undefined);
     };
 
     const handleConfirmAttachFile = async (quoteId: number, file: File) => {
@@ -739,31 +719,18 @@ export const DashboardOverview: React.FC = () => {
                                                         >
                                                             View
                                                         </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                console.log('Attach button clicked - Quote:', quote);
-                                                                console.log('Attach button clicked - Demand:', demand);
-                                                                setSelectedDemand(demand);
-                                                                setSelectedQuote(quote);
-                                                                setIsAttachFileModalOpen(true);
-                                                            }}
-                                                            className="text-orange-600 hover:text-orange-900 transition-colors inline-flex items-center gap-1"
-                                                        >
-                                                            <svg 
-                                                                className="w-4 h-4" 
-                                                                fill="none" 
-                                                                stroke="currentColor" 
-                                                                viewBox="0 0 24 24"
+                                                        {(!quote.attachedFiles || quote.attachedFiles.length === 0) && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelectedDemand(demand);
+                                                                    setSelectedQuote(quote);
+                                                                    setIsAttachFileModalOpen(true);
+                                                                }}
+                                                                className="text-green-600 hover:text-green-900 transition-colors"
                                                             >
-                                                                <path 
-                                                                    strokeLinecap="round" 
-                                                                    strokeLinejoin="round" 
-                                                                    strokeWidth={2} 
-                                                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" 
-                                                                />
-                                                            </svg>
-                                                            {quote.attachedFiles && quote.attachedFiles.length > 0 ? 'Re-attach' : 'Attach File'}
-                                                        </button>
+                                                                Attach File
+                                                            </button>
+                                                        )}
                                                         {quote.attachedFiles && quote.attachedFiles.length > 0 && (
                                                             <button
                                                                 onClick={() => {
@@ -798,25 +765,12 @@ export const DashboardOverview: React.FC = () => {
                                                             Waiting for quotes
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <button
                                                             onClick={() => handleViewDemand(demand)}
                                                             className="text-blue-600 hover:text-blue-900 transition-colors"
                                                         >
                                                             View
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                setSelectedDemand(demand);
-                                                                // Create a temporary quote ID based on demand ID for demonstration
-                                                                const tempQuoteId = demand.id;
-                                                                console.log(`Using quote ID ${tempQuoteId} for demand ${demand.id}`);
-                                                                setPrefilledQuoteId(tempQuoteId);
-                                                                setIsGeneralAttachModalOpen(true);
-                                                            }}
-                                                            className="text-orange-600 hover:text-orange-900 transition-colors"
-                                                        >
-                                                            Attach
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -901,8 +855,8 @@ export const DashboardOverview: React.FC = () => {
                 isLoading={createQuoteMutation.isPending}
             />
 
-            {/* Attach file modal - automatically uses quote ID when selectedQuote is available */}
-            {isAttachFileModalOpen && selectedQuote ? (
+            {/* Attach file modal */}
+            {user?.role === 'manager' && selectedQuote ? (
                 <AttachFileToQuoteModal
                     isOpen={isAttachFileModalOpen}
                     onClose={handleCloseAttachFileModal}
@@ -910,7 +864,7 @@ export const DashboardOverview: React.FC = () => {
                     onSave={handleConfirmAttachFile}
                     isLoading={isAttachingFile}
                 />
-            ) : isAttachFileModalOpen ? (
+            ) : (
                 <AttachFileModal
                     isOpen={isAttachFileModalOpen}
                     onClose={handleCloseAttachFileModal}
@@ -918,17 +872,7 @@ export const DashboardOverview: React.FC = () => {
                     onSave={handleConfirmAttachFile}
                     isLoading={isAttachingFile}
                 />
-            ) : null}
-
-            {/* General Attach File Modal (for demands without specific quotes) */}
-            <AttachFileModal
-                isOpen={isGeneralAttachModalOpen}
-                onClose={handleCloseGeneralAttachModal}
-                demand={selectedDemand}
-                onSave={handleConfirmAttachFile}
-                isLoading={isAttachingFile}
-                prefilledQuoteId={prefilledQuoteId}
-            />
+            )}
 
             {/* View Quote Modal */}
             <ViewQuoteModal

@@ -1,5 +1,7 @@
+
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useUserStatistics } from '../../hooks/useStatistics';
 
 interface StatItem {
     title: string;
@@ -9,14 +11,92 @@ interface StatItem {
     icon: React.ReactNode;
 }
 
+
 interface StatsGridProps {
     customStats?: StatItem[];
 }
 
 export const StatsGrid: React.FC<StatsGridProps> = ({ customStats }) => {
     const { user } = useAuth();
+    const { data: statistics, isLoading, error } = useUserStatistics();
+
 
     const getDefaultStatsForRole = (): StatItem[] => {
+        if ((user?.role === 'agent' || user?.role === 'responsible') && isLoading) {
+            return Array(4).fill(0).map((_, i) => ({
+                title: 'Loading...',
+                value: '...',
+                subtitle: 'Fetching data',
+                color: ['orange', 'green', 'amber', 'red'][i],
+                icon: (
+                    <svg className="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    </svg>
+                )
+            }));
+        }
+        if ((user?.role === 'agent' || user?.role === 'responsible') && error) {
+            return Array(4).fill(0).map((_, i) => ({
+                title: 'Error',
+                value: 'N/A',
+                subtitle: 'Failed to load',
+                color: 'red',
+                icon: (
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                )
+            }));
+        }
+        if ((user?.role === 'agent' || user?.role === 'responsible') && statistics) {
+            return [
+                {
+                    title: user?.role === 'agent' ? 'My Demands Created' : 'Total Demands Created',
+                    value: statistics.totalDemandsCreated.toString(),
+                    subtitle: user?.role === 'agent' ? 'Total submitted' : 'All time',
+                    color: 'orange',
+                    icon: (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        </svg>
+                    )
+                },
+                {
+                    title: 'Completed Demands',
+                    value: statistics.totalClosedDemands.toString(),
+                    subtitle: 'Successfully processed',
+                    color: 'green',
+                    icon: (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        </svg>
+                    )
+                },
+                {
+                    title: user?.role === 'agent' ? 'Pending Requests' : 'Pending Demands',
+                    value: statistics.pendingDemands.toString(),
+                    subtitle: 'Under review',
+                    color: 'amber',
+                    icon: (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        </svg>
+                    )
+                },
+                {
+                    title: user?.role === 'agent' ? 'Rejected Requests' : 'Rejected Demands',
+                    value: statistics.rejectedDemands.toString(),
+                    subtitle: 'Need revision',
+                    color: 'red',
+                    icon: (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        </svg>
+                    )
+                }
+            ];
+        }
+        // ...existing code...
         switch (user?.role) {
             case 'responsible':
                 return [

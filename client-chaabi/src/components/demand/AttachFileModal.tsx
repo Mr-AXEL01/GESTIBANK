@@ -7,7 +7,6 @@ interface AttachFileModalProps {
   demand: Demand | null;
   onSave: (quoteId: number, file: File) => void;
   isLoading?: boolean;
-  prefilledQuoteId?: number; // Add optional pre-filled quote ID
 }
 
 export const AttachFileModal: React.FC<AttachFileModalProps> = ({ 
@@ -15,19 +14,18 @@ export const AttachFileModal: React.FC<AttachFileModalProps> = ({
   onClose, 
   demand, 
   onSave, 
-  isLoading = false,
-  prefilledQuoteId 
+  isLoading = false 
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [quoteId, setQuoteId] = useState<number>(prefilledQuoteId || 0);
+  const [quoteId, setQuoteId] = useState<number>(0);
 
   // Reset form when modal opens
   React.useEffect(() => {
     if (isOpen) {
       setSelectedFile(null);
-      setQuoteId(prefilledQuoteId || 0);
+      setQuoteId(0);
     }
-  }, [isOpen, prefilledQuoteId]);
+  }, [isOpen]);
 
   if (!isOpen || !demand) return null;
 
@@ -88,20 +86,12 @@ export const AttachFileModal: React.FC<AttachFileModalProps> = ({
                 id="quoteId"
                 value={quoteId || ''}
                 onChange={(e) => setQuoteId(parseInt(e.target.value) || 0)}
-                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  prefilledQuoteId ? 'bg-gray-100 cursor-not-allowed' : ''
-                }`}
-                placeholder={prefilledQuoteId ? `Quote #${prefilledQuoteId}` : "Enter Quote ID"}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter Quote ID"
                 min="1"
                 required
-                disabled={isLoading || !!prefilledQuoteId}
-                readOnly={!!prefilledQuoteId}
+                disabled={isLoading}
               />
-              {prefilledQuoteId && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Quote ID automatically filled from selection
-                </p>
-              )}
             </div>
 
             {/* File Upload */}
