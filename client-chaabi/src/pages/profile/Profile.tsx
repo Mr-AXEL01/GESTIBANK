@@ -1,15 +1,31 @@
 import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useMyProfile } from '../../hooks/useUsers';
 
 export const Profile: React.FC = () => {
-  const { user } = useAuth();
+  const { data: user, isLoading, error } = useMyProfile();
 
-  if (!user) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">
+            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Profile</h3>
+          <p className="text-gray-600">{error?.message || 'Failed to load profile information'}</p>
         </div>
       </div>
     );
@@ -86,15 +102,15 @@ export const Profile: React.FC = () => {
     <div className="space-y-6">
       {/* Profile Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-8">
+        <div className="bg-gradient-to-r from-orange-500 to-black-600 px-6 py-8">
           <div className="flex items-center space-x-4">
             <div className="bg-white rounded-full p-3">
-              <svg className="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-12 h-12 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
             <div className="text-white">
-              <h1 className="text-2xl font-bold">{user.name}</h1>
+              <h1 className="text-2xl font-bold">{user.firstName} {user.lastName}</h1>
               <p className="text-blue-100">{user.email}</p>
             </div>
           </div>
@@ -119,8 +135,12 @@ export const Profile: React.FC = () => {
               <span className="text-sm text-gray-900 font-mono">#{user.id}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-sm font-medium text-gray-600">Full Name</span>
-              <span className="text-sm text-gray-900">{user.name}</span>
+              <span className="text-sm font-medium text-gray-600">First Name</span>
+              <span className="text-sm text-gray-900">{user.firstName}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-sm font-medium text-gray-600">Last Name</span>
+              <span className="text-sm text-gray-900">{user.lastName}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
               <span className="text-sm font-medium text-gray-600">Email Address</span>
@@ -177,144 +197,6 @@ export const Profile: React.FC = () => {
                 Online
               </span>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Role Permissions */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            Role Permissions & Responsibilities
-          </h2>
-        </div>
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {user.role === 'admin' && (
-              <>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>Manage all users</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>System administration</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>Create new users</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>Delete users</span>
-                </div>
-              </>
-            )}
-            {user.role === 'manager' && (
-              <>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <span>Manage approved quotes</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <span>Attach files to quotes</span>
-                </div>
-              </>
-            )}
-            {user.role === 'technician' && (
-              <>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>Review and approve demands</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>Validate quotes</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span>Manage technical approvals</span>
-                </div>
-              </>
-            )}
-            {user.role === 'responsible' && (
-              <>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                  <span>First-level demand approval</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                  <span>Review agent submissions</span>
-                </div>
-              </>
-            )}
-            {user.role === 'provider' && (
-              <>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                  <span>Create quotes for demands</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                  <span>Manage quote submissions</span>
-                </div>
-              </>
-            )}
-            {user.role === 'agent' && (
-              <>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  <span>Create new demands</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  <span>Edit rejected demands</span>
-                </div>
-                <div className="flex items-center space-x-3 text-sm">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  <span>View own demand status</span>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Quick Actions
-          </h2>
-        </div>
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="flex items-center justify-center space-x-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium py-3 px-4 rounded-lg transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-              <span>Edit Profile</span>
-            </button>
-            <button className="flex items-center justify-center space-x-2 bg-green-50 hover:bg-green-100 text-green-700 font-medium py-3 px-4 rounded-lg transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              <span>Change Password</span>
-            </button>
-            <button className="flex items-center justify-center space-x-2 bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span>Download Data</span>
-            </button>
           </div>
         </div>
       </div>

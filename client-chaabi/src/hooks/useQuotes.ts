@@ -22,3 +22,17 @@ export const useCreateQuote = () => {
     },
   });
 };
+
+export const useManageQuote = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ quoteId, attachedFile }: { quoteId: number; attachedFile: File }) => 
+      quoteService.manageQuote(quoteId, attachedFile),
+    onSuccess: () => {
+      // Invalidate and refetch quotes to update the UI
+      queryClient.invalidateQueries({ queryKey: ['quotes'] });
+      queryClient.invalidateQueries({ queryKey: ['demands'] });
+    },
+  });
+};

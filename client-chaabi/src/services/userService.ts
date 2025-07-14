@@ -108,6 +108,31 @@ class UserService {
       throw error;
     }
   }
+
+  async getMyProfile(): Promise<UserResponseDTO> {
+    try {
+      console.log('Getting user profile...');
+      const response = await fetch(`${API_BASE_URL}/users/my_profile`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      
+      console.log('Profile response status:', response.status);
+      
+      if (!response.ok) {
+        const error = await response.text();
+        console.error('Profile error:', error);
+        throw new Error(error || `HTTP error! status: ${response.status}`);
+      }
+      
+      const profile = await response.json();
+      console.log('Profile data retrieved:', profile);
+      return profile;
+    } catch (error) {
+      console.error('Error in getMyProfile:', error);
+      throw error;
+    }
+  }
 }
 
 export const userService = new UserService();

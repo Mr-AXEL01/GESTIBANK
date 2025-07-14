@@ -32,3 +32,11 @@ export const useRegisterUser = () => {
     },
   });
 };
+
+export const useMyProfile = () => {
+  return useQuery<UserResponseDTO, Error>({
+    queryKey: ['my-profile'],
+    queryFn: () => userService.getMyProfile(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
