@@ -110,7 +110,6 @@ public class DemandServiceImpl implements DemandService {
         return demand;
     }
 
-
     @Override
     public Demand findDemandEntity(Long id) {
         return repository.findById(id)
