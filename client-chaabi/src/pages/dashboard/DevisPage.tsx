@@ -4,14 +4,30 @@ import { DataTable } from '../../components/common/DataTable';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { useQuotes } from '../../hooks/useQuotes';
 import { ViewDevisModal } from '../../components/demand/ViewDevisModal';
+import { RejectQuoteModal } from '../../components/demand/RejectQuoteModal';
+import { ReasonModal } from '../../components/demand/ReasonModal';
+import { EditQuoteModal } from '../../components/demand/EditQuoteModal';
+import { quoteService, type QuoteValidationRequest, type QuoteUpdateDTO } from '../../services/quoteService';
 import type { TableColumn } from '../../components/common/DataTable';
 import type { Quote } from '../../services/quoteService';
 
 export const DevisPage: React.FC = () => {
   const { user } = useAuth();
-  const { data: quotes = [], isLoading, error } = useQuotes();
+  const { data: quotes = [], isLoading, error, refetch } = useQuotes();
+  
+  // Debug user role and quotes
+  console.log('DevisPage - Current user:', user);
+  console.log('DevisPage - Quotes data:', quotes);
+  
   const [selectedDevis, setSelectedDevis] = useState<Quote | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [isReasonModalOpen, setIsReasonModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [quoteToReject, setQuoteToReject] = useState<Quote | null>(null);
+  const [selectedRejectedQuote, setSelectedRejectedQuote] = useState<Quote | null>(null);
+  const [quoteToEdit, setQuoteToEdit] = useState<Quote | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
     
   // Debug information
 //   console.log('DevisPage - User:', user);
@@ -32,16 +48,71 @@ export const DevisPage: React.FC = () => {
     );
   }
 
-  const handleApproveQuote = (quote: any) => {
-    console.log('Approving quote:', quote);
-    // TODO: Implement approve quote API call
-    // You can add the API call here similar to how demands are approved
+  const handleApproveQuote = async (quote: Quote) => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    try {
+      const validationData: QuoteValidationRequest = {
+        quoteStatus: 'APPROVED',
+        comment: {
+          content: 'Quote approved by technician',
+          type: 'APPROVED',
+          demandId: quote.demandId,
+          quoteId: quote.id
+        }
+      };
+      
+      await quoteService.validateQuote(validationData);
+      await refetch(); // Refresh the quotes list
+      
+      // Show success message (you can add a toast notification here)
+      console.log('Quote approved successfully');
+    } catch (error) {
+      console.error('Error approving quote:', error);
+      // Show error message (you can add a toast notification here)
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handleRejectQuote = (quote: any) => {
-    console.log('Rejecting quote:', quote);
-    // TODO: Implement reject quote API call
-    // You can add the API call here similar to how demands are rejected
+  const handleRejectQuote = (quote: Quote) => {
+    setQuoteToReject(quote);
+    setIsRejectModalOpen(true);
+  };
+
+  const handleConfirmReject = async (rejectionReason: string) => {
+    if (!quoteToReject || isProcessing) return;
+    
+    setIsProcessing(true);
+    try {
+      const validationData: QuoteValidationRequest = {
+        quoteStatus: 'REJECTED',
+        comment: {
+          content: rejectionReason,
+          type: 'REJECTED',
+          demandId: quoteToReject.demandId,
+          quoteId: quoteToReject.id
+        }
+      };
+      
+      await quoteService.validateQuote(validationData);
+      await refetch(); // Refresh the quotes list
+      
+      // Show success message (you can add a toast notification here)
+      console.log('Quote rejected successfully');
+    } catch (error) {
+      console.error('Error rejecting quote:', error);
+      // Show error message (you can add a toast notification here)
+    } finally {
+      setIsProcessing(false);
+      setQuoteToReject(null);
+    }
+  };
+
+  const handleCloseRejectModal = () => {
+    setIsRejectModalOpen(false);
+    setQuoteToReject(null);
   };
 
   const handleViewDetails = (devis: Quote) => {
@@ -53,6 +124,61 @@ export const DevisPage: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedDevis(null);
+  };
+
+  const handleEditQuote = (quote: Quote) => {
+    console.log('Editing quote:', quote);
+    setQuoteToEdit(quote);
+    setIsEditModalOpen(true);
+  };
+
+  const handleViewReason = async (quote: Quote) => {
+    try {
+      console.log('Viewing rejection reason for quote:', quote);
+      setIsProcessing(true);
+      
+      // Fetch full quote details including rejection reason
+      const fullQuoteDetails = await quoteService.getQuoteById(quote.id);
+      setSelectedRejectedQuote(fullQuoteDetails);
+      setIsReasonModalOpen(true);
+    } catch (error) {
+      console.error('Error fetching quote details:', error);
+      // Fallback to using the existing quote data
+      setSelectedRejectedQuote(quote);
+      setIsReasonModalOpen(true);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCloseReasonModal = () => {
+    setIsReasonModalOpen(false);
+    setSelectedRejectedQuote(null);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setQuoteToEdit(null);
+  };
+
+  const handleSaveQuote = async (quoteId: number, totalAmount: number) => {
+    try {
+      setIsProcessing(true);
+      const updateData: QuoteUpdateDTO = {
+        id: quoteId,
+        totalAmount: totalAmount
+      };
+      
+      await quoteService.updateQuote(updateData);
+      await refetch(); // Refresh the quotes list
+      handleCloseEditModal();
+      console.log('Quote updated successfully');
+    } catch (error) {
+      console.error('Error updating quote:', error);
+      alert('Failed to update quote. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const getTableConfig = () => {
@@ -108,31 +234,31 @@ export const DevisPage: React.FC = () => {
       data: filteredQuotes,
       actions: [
         {
-          label: 'Approve',
-          onClick: (row: any) => {
+          label: isProcessing ? 'Processing...' : 'Approve',
+          onClick: (row: Quote) => {
             console.log('User role:', user.role);
             console.log('Quote status:', row.status);
             handleApproveQuote(row);
           },
           variant: 'secondary' as const,
           roles: ['technician'],
-          condition: (row: any) => {
+          condition: (row: Quote) => {
             console.log('Checking approve condition - Status:', row.status, 'User role:', user.role);
-            return row.status === 'CREATED'; // Changed from 'PENDING' to 'CREATED'
+            return row.status === 'CREATED' && !isProcessing;
           }
         },
         {
-          label: 'Reject',
-          onClick: (row: any) => {
+          label: isProcessing ? 'Processing...' : 'Reject',
+          onClick: (row: Quote) => {
             console.log('User role:', user.role);
             console.log('Quote status:', row.status);
             handleRejectQuote(row);
           },
           variant: 'danger' as const,
           roles: ['technician'],
-          condition: (row: any) => {
+          condition: (row: Quote) => {
             console.log('Checking reject condition - Status:', row.status, 'User role:', user.role);
-            return row.status === 'CREATED'; // Changed from 'PENDING' to 'CREATED'
+            return row.status === 'CREATED' && !isProcessing;
           }
         },
         {
@@ -140,6 +266,20 @@ export const DevisPage: React.FC = () => {
           onClick: (row: Quote) => handleViewDetails(row),
           variant: 'primary' as const,
           roles: ['technician', 'provider']
+        },
+        {
+          label: 'Edit',
+          onClick: handleEditQuote,
+          variant: 'secondary' as const,
+          roles: ['provider'],
+          condition: (row: Quote) => row.status === 'REJECTED' || row.status === 'rejected'
+        },
+        {
+          label: 'Reason',
+          onClick: handleViewReason,
+          variant: 'info' as const,
+          roles: ['provider'],
+          condition: (row: Quote) => row.status === 'REJECTED' || row.status === 'rejected'
         }
       ]
     };
@@ -284,6 +424,30 @@ export const DevisPage: React.FC = () => {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           devis={selectedDevis}
+        />
+
+        {/* Reject Quote Modal */}
+        <RejectQuoteModal
+          isOpen={isRejectModalOpen}
+          onClose={handleCloseRejectModal}
+          onConfirm={handleConfirmReject}
+          quoteName={quoteToReject?.demand?.title ? `quote for "${quoteToReject.demand.title}"` : 'this quote'}
+        />
+
+        {/* Reason Modal - Show rejection reason */}
+        <ReasonModal
+          isOpen={isReasonModalOpen}
+          onClose={handleCloseReasonModal}
+          quote={selectedRejectedQuote}
+        />
+
+        {/* Edit Quote Modal - For providers to edit rejected quotes */}
+        <EditQuoteModal
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          quote={quoteToEdit}
+          onSave={handleSaveQuote}
+          isLoading={isProcessing}
         />
       </div>
     </DashboardLayout>
