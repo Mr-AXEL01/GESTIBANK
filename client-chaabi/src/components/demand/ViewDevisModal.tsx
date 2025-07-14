@@ -80,23 +80,31 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-4">Provider Information</h3>
               <div className="space-y-3">
-                {devis.provider ? (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Provider Name</label>
-                      <p className="mt-1 text-sm text-gray-900">
-                        {devis.provider.firstName} {devis.provider.lastName}
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Email</label>
-                      <p className="mt-1 text-sm text-gray-900">{devis.provider.email}</p>
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-sm text-gray-500">No provider information available</p>
-                )}
+                {(() => {
+                  const providerInfo = devis.provider || devis.createdBy;
+                  if (providerInfo) {
+                    return (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Provider Name</label>
+                          <p className="mt-1 text-sm text-gray-900">
+                            {providerInfo.firstName && providerInfo.lastName 
+                              ? `${providerInfo.firstName} ${providerInfo.lastName}`
+                              : providerInfo.email || 'Unknown Provider'
+                            }
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Email</label>
+                          <p className="mt-1 text-sm text-gray-900">{providerInfo.email || 'N/A'}</p>
+                        </div>
+                      </>
+                    );
+                  } else {
+                    return <p className="text-sm text-gray-500">No provider information available</p>;
+                  }
+                })()}
               </div>
             </div>
           </div>
@@ -141,6 +149,85 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
               </div>
             </div>
           )}
+
+          {/* Attached Files Section */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="text-lg font-medium text-gray-900 mb-4">Attached Files</h4>
+            <div className="space-y-3">
+              {devis.bonCommand ? (
+                <div className="flex items-center justify-between bg-white p-3 rounded border">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex-shrink-0">
+                      <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">
+                        Bon de Commande
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Attached by Manager
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <a
+                      href={devis.bonCommand}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-3 py-1 border border-green-300 text-sm font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 transition-colors"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Download
+                    </a>
+                  </div>
+                </div>
+              ) : devis.attachedFiles && devis.attachedFiles.length > 0 ? (
+                devis.attachedFiles.map((file) => (
+                  <div key={file.id} className="flex items-center justify-between bg-white p-3 rounded border">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex-shrink-0">
+                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900">
+                          {file.fileName}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Uploaded on {new Date(file.uploadedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <a
+                        href={file.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center px-3 py-1 border border-green-300 text-sm font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 transition-colors"
+                      >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Download
+                      </a>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <svg className="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <p className="text-sm">No files attached to this quote</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
