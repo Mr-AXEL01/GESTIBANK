@@ -3,6 +3,7 @@ package net.axel.gestibankbackend.web;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import net.axel.gestibankbackend.domain.dtos.demand.requests.DemandRequestDTO;
+import net.axel.gestibankbackend.domain.dtos.demand.requests.DemandUpdateDTO;
 import net.axel.gestibankbackend.domain.dtos.demand.requests.DemandValidateDTO;
 import net.axel.gestibankbackend.domain.dtos.demand.responses.DemandResponseDTO;
 import net.axel.gestibankbackend.domain.entities.Demand;
@@ -40,6 +41,7 @@ public class DemandController {
         return ResponseEntity.ok(demand);
     }
 
+    @PreAuthorize("hasAnyRole('AGENT', 'RESPONSIBLE')")
     @GetMapping("/{id}")
     public ResponseEntity<DemandResponseDTO> getDemandById(@PathVariable("id") Long id) {
         DemandResponseDTO demand = service.findById(id);
@@ -51,6 +53,13 @@ public class DemandController {
     public ResponseEntity<DemandResponseDTO> validateDemand(@RequestBody @Valid DemandValidateDTO dto,
                                                  Principal connectedUser) {
         DemandResponseDTO demand = service.validate(dto, connectedUser.getName());
+        return ResponseEntity.ok(demand);
+    }
+
+    @PreAuthorize("hasAnyRole('AGENT', 'RESPONSIBLE')")
+    @PutMapping
+    public ResponseEntity<DemandResponseDTO> update(@RequestBody @Valid DemandUpdateDTO dto) {
+        DemandResponseDTO demand = service.update(dto);
         return ResponseEntity.ok(demand);
     }
 }

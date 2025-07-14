@@ -2,6 +2,7 @@ package net.axel.gestibankbackend.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import net.axel.gestibankbackend.domain.dtos.demand.requests.DemandRequestDTO;
+import net.axel.gestibankbackend.domain.dtos.demand.requests.DemandUpdateDTO;
 import net.axel.gestibankbackend.domain.dtos.demand.requests.DemandValidateDTO;
 import net.axel.gestibankbackend.domain.dtos.demand.responses.DemandResponseDTO;
 import net.axel.gestibankbackend.domain.entities.AppUser;
@@ -15,6 +16,7 @@ import net.axel.gestibankbackend.mapper.DemandMapper;
 import net.axel.gestibankbackend.repository.ArticleRepository;
 import net.axel.gestibankbackend.repository.DemandRepository;
 import net.axel.gestibankbackend.repository.UserRepository;
+import net.axel.gestibankbackend.service.ArticleService;
 import net.axel.gestibankbackend.service.CommentService;
 import net.axel.gestibankbackend.service.DemandService;
 import net.axel.gestibankbackend.service.FileUploader;
@@ -35,6 +37,7 @@ public class DemandServiceImpl implements DemandService {
 
     private final DemandRepository repository;
     private final ArticleRepository articleRepository;
+    private final ArticleService articleService;
     private final UserRepository userRepository;
     private final DemandMapper mapper;
     private final FileUploader fileUploader;
@@ -61,6 +64,21 @@ public class DemandServiceImpl implements DemandService {
                 ).toList();
 
         articleRepository.saveAll(articles);
+        demand.setArticles(articles);
+
+        return mapper.toResponseDto(demand);
+    }
+
+    @Override
+    public DemandResponseDTO update(DemandUpdateDTO dto) {
+        if (repository.existsById(dto.id())) throw new ResourceNotFoundException("Can't update, demand not exists!");
+
+        Demand demand = findDemandEntity(dto.id());
+        demand.setTitle(dto.title())
+                .setDescription(dto.description());
+
+        List<Article> articles = dto.articles().stream()
+                .map(articleService::update).toList();
         demand.setArticles(articles);
 
         return mapper.toResponseDto(demand);
