@@ -6,6 +6,7 @@ import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteRequestDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteUpdateDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteValidateDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.responses.QuoteResponseDTO;
+import net.axel.gestibankbackend.domain.dtos.user.responses.ProviderStatisticsDTO;
 import net.axel.gestibankbackend.domain.entities.AppUser;
 import net.axel.gestibankbackend.domain.entities.Comment;
 import net.axel.gestibankbackend.domain.entities.Demand;
@@ -96,6 +97,17 @@ public class QuoteServiceImpl implements QuoteService {
 
         quote.setBonCommand(fileUrl);
         return mapper.mapToResponse(quote);
+    }
+    
+    @Override
+    public ProviderStatisticsDTO getProviderStats(String email) {
+        AppUser provider = getUser(email);
+        int created = repository.countByCreatedBy(provider);
+        int approved = repository.countByCreatedByAndStatus(provider, QuoteStatus.APPROVED);
+        int pending = repository.countByCreatedByAndStatus(provider, QuoteStatus.CREATED);
+        int rejected = repository.countByCreatedByAndStatus(provider, QuoteStatus.REJECTED);
+
+        return new ProviderStatisticsDTO(created, approved, pending, rejected);
     }
 
     private Quote findQuoteEntity(Long id) {

@@ -1,6 +1,7 @@
 package net.axel.gestibankbackend.web;
 
 import lombok.RequiredArgsConstructor;
+import net.axel.gestibankbackend.domain.dtos.user.responses.ProviderStatisticsDTO;
 import net.axel.gestibankbackend.domain.dtos.user.responses.TechnicianStatisticsDTO;
 import net.axel.gestibankbackend.domain.dtos.user.responses.UserStatisticsDTO;
 import net.axel.gestibankbackend.service.DemandService;
@@ -25,7 +26,6 @@ public class StatisticController {
 
     private final QuoteService quoteService;
     private final DemandService demandService;
-    private final UserService userService;
 
     @PreAuthorize("hasAnyRole('AGENT', 'RESPONSIBLE')")
     @GetMapping("/demands")
@@ -37,6 +37,12 @@ public class StatisticController {
     @GetMapping("/technician")
     public ResponseEntity<TechnicianStatisticsDTO> getTechnicianStats() {
         return ResponseEntity.ok(demandService.getTechStats());
+    }
+
+    @PreAuthorize("hasRole('PROVIDER')")
+    @GetMapping("/provider")
+    public ResponseEntity<ProviderStatisticsDTO> getProviderStats(Principal connectedUser) {
+        return ResponseEntity.ok(quoteService.getProviderStats(connectedUser.getName()));
     }
 
 }

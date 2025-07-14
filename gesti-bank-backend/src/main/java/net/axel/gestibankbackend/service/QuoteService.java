@@ -5,6 +5,7 @@ import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteRequestDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteUpdateDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteValidateDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.responses.QuoteResponseDTO;
+import net.axel.gestibankbackend.domain.dtos.user.responses.ProviderStatisticsDTO;
 
 import java.util.List;
 
@@ -21,4 +22,6 @@ public interface QuoteService {
     QuoteResponseDTO validate(QuoteValidateDTO dto, String email);
 
     QuoteResponseDTO manage(QuoteManageDTO dto);
+
+    ProviderStatisticsDTO getProviderStats(String email);
 }
