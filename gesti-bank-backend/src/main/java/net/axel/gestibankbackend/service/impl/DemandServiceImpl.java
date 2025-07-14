@@ -71,14 +71,28 @@ public class DemandServiceImpl implements DemandService {
 
     @Override
     public DemandResponseDTO update(DemandUpdateDTO dto) {
-        if (repository.existsById(dto.id())) throw new ResourceNotFoundException("Can't update, demand not exists!");
+        if (!repository.existsById(dto.id())) throw new ResourceNotFoundException("Can't update, demand not exists!");
 
         Demand demand = findDemandEntity(dto.id());
         demand.setTitle(dto.title())
                 .setDescription(dto.description());
 
         List<Article> articles = dto.articles().stream()
-                .map(articleService::update).toList();
+                .map(articleDTO -> {
+                    if (articleDTO.id() == null) {
+                        Article article = Article.createArticle(
+                                articleDTO.name(),
+                                articleDTO.description(),
+                                articleDTO.quantity(),
+                                demand
+                        );
+                        return articleRepository.save(article);
+                    } else {
+                        return articleService.update(articleDTO);
+                    }
+                })
+                .toList();
+
         demand.setArticles(articles);
 
         return mapper.toResponseDto(demand);

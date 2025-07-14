@@ -3,7 +3,6 @@ package net.axel.gestibankbackend.service.impl;
 import lombok.RequiredArgsConstructor;
 import net.axel.gestibankbackend.domain.dtos.article.requests.ArticleRequestDTO;
 import net.axel.gestibankbackend.domain.dtos.article.requests.ArticleUpdateDTO;
-import net.axel.gestibankbackend.domain.dtos.article.responses.ArticleResponseDTO;
 import net.axel.gestibankbackend.domain.entities.Article;
 import net.axel.gestibankbackend.exception.domains.ResourceNotFoundException;
 import net.axel.gestibankbackend.mapper.ArticleMapper;
@@ -22,7 +21,7 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleMapper mapper;
 
     @Override
-    public ArticleResponseDTO create(ArticleRequestDTO dto) {
+    public Article create(ArticleRequestDTO dto) {
 
         return null;
     }
