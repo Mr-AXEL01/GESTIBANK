@@ -53,7 +53,8 @@ public class QuoteServiceImpl implements QuoteService {
     @Override
     public QuoteResponseDTO update(QuoteUpdateDTO dto) {
         Quote quote = findQuoteEntity(dto.id());
-        quote.setTotalAmount(dto.totalAmount());
+        quote.setTotalAmount(dto.totalAmount())
+                .setStatus(QuoteStatus.CREATED);
         return  mapper.mapToResponse(quote);
     }
 
