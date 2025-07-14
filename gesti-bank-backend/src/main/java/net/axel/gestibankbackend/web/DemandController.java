@@ -58,8 +58,9 @@ public class DemandController {
 
     @PreAuthorize("hasAnyRole('AGENT', 'RESPONSIBLE')")
     @PutMapping
-    public ResponseEntity<DemandResponseDTO> update(@RequestBody @Valid DemandUpdateDTO dto) {
-        DemandResponseDTO demand = service.update(dto);
+    public ResponseEntity<DemandResponseDTO> update(@RequestBody @Valid DemandUpdateDTO dto,
+                                                    Principal connectedUser) {
+        DemandResponseDTO demand = service.update(dto, connectedUser.getName());
         return ResponseEntity.ok(demand);
     }
 }

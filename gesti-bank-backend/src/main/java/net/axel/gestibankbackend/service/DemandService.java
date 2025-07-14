@@ -12,7 +12,7 @@ public interface DemandService {
 
     DemandResponseDTO create(DemandRequestDTO dto, String email);
 
-    DemandResponseDTO update(DemandUpdateDTO dto);
+    DemandResponseDTO update(DemandUpdateDTO dto, String email);
 
     List<DemandResponseDTO> findAll(int page, int size);
 

@@ -8,6 +8,7 @@ import net.axel.gestibankbackend.domain.dtos.quote.responses.QuoteResponseDTO;
 import net.axel.gestibankbackend.service.QuoteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ public class QuoteController {
 
     private final QuoteService service;
 
+    @PreAuthorize("hasRole('PROVIDER')")
     @PostMapping
     public ResponseEntity<QuoteResponseDTO> create(@RequestBody @Valid QuoteRequestDTO dto,
                                    Principal connectedUser) {
@@ -33,8 +35,11 @@ public class QuoteController {
         return new ResponseEntity<>(quote, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('TECHNICIAN')")
+    @PostMapping
     public ResponseEntity<QuoteResponseDTO> validate(@RequestBody @Valid QuoteValidateDTO dto,
                                                      Principal connectedUser) {
-        service.validate(dto, connectedUser.getName());
+        QuoteResponseDTO quote = service.validate(dto, connectedUser.getName());
+        return ResponseEntity.ok(quote);
     }
 }

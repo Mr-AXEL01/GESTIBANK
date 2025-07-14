@@ -23,6 +23,7 @@ import net.axel.gestibankbackend.service.FileUploader;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,12 +71,16 @@ public class DemandServiceImpl implements DemandService {
     }
 
     @Override
-    public DemandResponseDTO update(DemandUpdateDTO dto) {
+    public DemandResponseDTO update(DemandUpdateDTO dto, String email) {
+        AppUser user = getUser(email);
         if (!repository.existsById(dto.id())) throw new ResourceNotFoundException("Can't update, demand not exists!");
 
         Demand demand = findDemandEntity(dto.id());
         demand.setTitle(dto.title())
                 .setDescription(dto.description());
+
+        if (user.getRole() == AppRole.RESPONSIBLE) demand.setStatus(DemandStatus.RESPONSIBLE_APPROVED);
+        if (user.getRole() == AppRole.AGENT)demand.setStatus(DemandStatus.CREATED);
 
         List<Article> articles = dto.articles().stream()
                 .map(articleDTO -> {
