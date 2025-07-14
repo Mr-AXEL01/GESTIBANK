@@ -35,4 +35,10 @@ public class UserController {
         service.remove(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/my_profile")
+    public ResponseEntity<UserResponseDTO> getConnectedUser(Principal connectedUser) {
+        UserResponseDTO user = service.findUser(connectedUser.getName());
+        return ResponseEntity.ok(user);
+    }
 }

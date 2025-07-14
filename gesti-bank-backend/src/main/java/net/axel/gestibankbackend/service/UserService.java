@@ -9,4 +9,6 @@ public interface UserService {
     List<UserResponseDTO> findAllUsers(int page, int size, String email);
 
     void remove(Long id);
+
+    UserResponseDTO findUser(String email);
 }
