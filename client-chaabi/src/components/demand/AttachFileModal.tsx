@@ -44,8 +44,11 @@ export const AttachFileModal: React.FC<AttachFileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0  flex items-center justify-center p-4 z-[9999]">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div 
+      className="fixed inset-0 flex items-center justify-center p-4 z-[9999]"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+    >
+      <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-gray-900">Attach File to Quote</h2>

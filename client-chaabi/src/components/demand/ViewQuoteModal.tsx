@@ -43,8 +43,11 @@ export const ViewQuoteModal: React.FC<ViewQuoteModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div 
+      className="fixed inset-0 flex items-center justify-center z-[9999] p-4"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+    >
+      <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
           <div>
@@ -120,22 +123,28 @@ export const ViewQuoteModal: React.FC<ViewQuoteModalProps> = ({
           )}
 
           {/* Provider Information */}
-          {quote.provider && (
+          {(quote.provider || quote.createdBy) && (
             <div className="bg-purple-50 rounded-lg p-4">
               <h4 className="text-lg font-medium text-gray-900 mb-4">Provider Information</h4>
               <div className="space-y-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Provider Name</label>
                   <p className="mt-1 text-sm text-gray-900">
-                    {quote.provider.firstName && quote.provider.lastName ? 
-                      `${quote.provider.firstName} ${quote.provider.lastName}` : 
-                      quote.provider.email || 'Unknown Provider'
-                    }
+                    {(() => {
+                      const provider = quote.provider || quote.createdBy;
+                      if (provider && provider.firstName && provider.lastName) {
+                        return `${provider.firstName} ${provider.lastName}`;
+                      } else if (provider && provider.email) {
+                        return provider.email;
+                      } else {
+                        return 'Unknown Provider';
+                      }
+                    })()}
                   </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Email</label>
-                  <p className="mt-1 text-sm text-gray-900">{quote.provider.email}</p>
+                  <p className="mt-1 text-sm text-gray-900">{(quote.provider || quote.createdBy)?.email}</p>
                 </div>
               </div>
             </div>

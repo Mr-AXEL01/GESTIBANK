@@ -210,9 +210,13 @@ export const DevisPage: React.FC = () => {
       { 
         key: 'provider', 
         header: 'Provider Name',
-        render: (provider: any) => {
-          if (provider) {
-            return `${provider.firstName} ${provider.lastName}`;
+        render: (provider: any, row: Quote) => {
+          // Try provider first, then fallback to createdBy
+          const providerInfo = provider || row.createdBy;
+          if (providerInfo && providerInfo.firstName && providerInfo.lastName) {
+            return `${providerInfo.firstName} ${providerInfo.lastName}`;
+          } else if (providerInfo && providerInfo.email) {
+            return providerInfo.email;
           }
           return 'N/A';
         }
