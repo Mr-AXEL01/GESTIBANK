@@ -36,7 +36,7 @@ public class QuoteController {
     }
 
     @PreAuthorize("hasRole('PROVIDER')")
-    @PostMapping
+    @PutMapping
     public ResponseEntity<QuoteResponseDTO> update(@RequestBody @Valid QuoteUpdateDTO dto) {
         QuoteResponseDTO quote = service.update(dto);
         return ResponseEntity.ok(quote);
