@@ -5,6 +5,8 @@ import net.axel.gestibankbackend.domain.dtos.demand.requests.DemandRequestDTO;
 import net.axel.gestibankbackend.domain.dtos.demand.requests.DemandUpdateDTO;
 import net.axel.gestibankbackend.domain.dtos.demand.requests.DemandValidateDTO;
 import net.axel.gestibankbackend.domain.dtos.demand.responses.DemandResponseDTO;
+import net.axel.gestibankbackend.domain.dtos.user.responses.TechnicianStatisticsDTO;
+import net.axel.gestibankbackend.domain.dtos.user.responses.UserStatisticsDTO;
 import net.axel.gestibankbackend.domain.entities.AppUser;
 import net.axel.gestibankbackend.domain.entities.Article;
 import net.axel.gestibankbackend.domain.entities.Comment;
@@ -23,7 +25,6 @@ import net.axel.gestibankbackend.service.FileUploader;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -104,10 +105,9 @@ public class DemandServiceImpl implements DemandService {
     }
 
     @Override
-    public Demand updateStatus(Long id, String demandStatus) {
+    public void updateStatus(Long id, String demandStatus) {
         Demand demand = findDemandEntity(id);
         demand.setStatus(DemandStatus.valueOf(demandStatus));
-        return demand;
     }
 
     @Override
@@ -140,6 +140,26 @@ public class DemandServiceImpl implements DemandService {
         Comment comment = commentService.create(dto.comment(), user);
         demand.getComments().add(comment);
         return mapper.toResponseDto(demand);
+    }
+
+    @Override
+    public UserStatisticsDTO getUserStats(String email) {
+        AppUser agent = getUser(email);
+        int total = repository.countByCreatedBy(agent);
+        int closed = repository.countByCreatedByAndStatus(agent, DemandStatus.DONE);
+        int pending = repository.countByCreatedByAndStatus(agent, DemandStatus.CREATED);
+        int rejected = repository.countByCreatedByAndStatus(agent, DemandStatus.RESPONSIBLE_REJECTED) + repository.countByCreatedByAndStatus(agent, DemandStatus.TECHNICIAN_REJECTED);
+
+        return  new UserStatisticsDTO(total, closed, pending, rejected);
+    }
+
+    @Override
+    public TechnicianStatisticsDTO getTechStats() {
+        int toValidate = repository.countByStatus(DemandStatus.RESPONSIBLE_APPROVED);
+        int validated = repository.countByStatus(DemandStatus.TECHNICIAN_APPROVED);
+        int rejected = repository.countByStatus(DemandStatus.TECHNICIAN_REJECTED);
+
+        return new TechnicianStatisticsDTO(toValidate, validated, rejected);
     }
 
     private String uploadFile(MultipartFile file) {
