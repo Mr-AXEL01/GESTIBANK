@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import net.axel.gestibankbackend.domain.dtos.article.ArticleEmbeddedDTO;
 import net.axel.gestibankbackend.domain.dtos.demand.DemandEmbeddedDTO;
 import net.axel.gestibankbackend.domain.dtos.demand.responses.DemandResponseDTO;
+import net.axel.gestibankbackend.domain.dtos.user.UserEmbeddedDTO;
+import net.axel.gestibankbackend.domain.entities.AppUser;
 import net.axel.gestibankbackend.domain.entities.Article;
 import net.axel.gestibankbackend.domain.entities.Demand;
 import org.springframework.stereotype.Component;
@@ -14,7 +16,6 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class DemandMapper {
 
-    private final UserMapper userMapper;
     private final CommentMapper commentMapper;
 
     public DemandResponseDTO toResponseDto(Demand demand) {
@@ -28,7 +29,7 @@ public class DemandMapper {
                 demand.getAttachedFile(),
                 demand.getArticles().stream().map(this::mapArticleToEmbedded).toList(),
                 new ArrayList<>(),
-                userMapper.mapToEmbedded(demand.getCreatedBy()),
+                mapUserToEmbedded(demand.getCreatedBy()),
                 demand.getStatus(),
                 demand.getComments().stream().map(commentMapper::mapToEmbedded).toList()
         );
@@ -43,6 +44,18 @@ public class DemandMapper {
                 demand.getStatus(),
                 demand.getCreatedAt(),
                 demand.getAttachedFile()
+        );
+    }
+
+    public UserEmbeddedDTO mapUserToEmbedded(AppUser user) {
+        if (user == null) return null;
+        return new UserEmbeddedDTO(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getCreatedAt(),
+                user.getRole()
         );
     }
 
