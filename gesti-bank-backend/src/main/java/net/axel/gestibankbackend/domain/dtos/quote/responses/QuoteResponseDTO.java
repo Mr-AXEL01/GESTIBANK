@@ -13,6 +13,7 @@ public record QuoteResponseDTO(
         Double totalAmount,
         QuoteStatus status,
         DemandEmbeddedDTO demand,
-        List<CommentEmbeddedDTO> comments
+        List<CommentEmbeddedDTO> comments,
+        String bonCommand
 ) {
 }

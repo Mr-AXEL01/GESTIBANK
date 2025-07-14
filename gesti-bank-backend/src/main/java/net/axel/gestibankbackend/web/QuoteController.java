@@ -2,6 +2,7 @@ package net.axel.gestibankbackend.web;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteManageDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteRequestDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteValidateDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.responses.QuoteResponseDTO;
@@ -9,10 +10,7 @@ import net.axel.gestibankbackend.service.QuoteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -40,6 +38,13 @@ public class QuoteController {
     public ResponseEntity<QuoteResponseDTO> validate(@RequestBody @Valid QuoteValidateDTO dto,
                                                      Principal connectedUser) {
         QuoteResponseDTO quote = service.validate(dto, connectedUser.getName());
+        return ResponseEntity.ok(quote);
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
+    @PostMapping
+    public ResponseEntity<QuoteResponseDTO> manage(@ModelAttribute QuoteManageDTO dto) {
+        QuoteResponseDTO quote = service.manage(dto);
         return ResponseEntity.ok(quote);
     }
 }

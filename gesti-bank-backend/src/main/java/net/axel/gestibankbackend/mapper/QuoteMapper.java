@@ -22,7 +22,8 @@ public class QuoteMapper {
                 quote.getTotalAmount(),
                 quote.getStatus(),
                 demandMapper.toEmbeddedDto(quote.getDemand()),
-                quote.getComments().stream().map(commentMapper::mapToEmbedded).toList()
+                quote.getComments().stream().map(commentMapper::mapToEmbedded).toList(),
+                quote.getBonCommand()
         );
     }
 }

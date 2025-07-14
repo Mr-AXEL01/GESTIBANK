@@ -1,6 +1,7 @@
 package net.axel.gestibankbackend.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteManageDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteRequestDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.requests.QuoteValidateDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.responses.QuoteResponseDTO;
@@ -15,9 +16,11 @@ import net.axel.gestibankbackend.repository.QuoteRepository;
 import net.axel.gestibankbackend.repository.UserRepository;
 import net.axel.gestibankbackend.service.CommentService;
 import net.axel.gestibankbackend.service.DemandService;
+import net.axel.gestibankbackend.service.FileUploader;
 import net.axel.gestibankbackend.service.QuoteService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -30,6 +33,7 @@ public class QuoteServiceImpl implements QuoteService {
     private final UserRepository userRepository;
     private final DemandService demandService;
     private final CommentService commentService;
+    private final FileUploader fileUploader;
 
 
     @Override
@@ -51,6 +55,18 @@ public class QuoteServiceImpl implements QuoteService {
         return mapper.mapToResponse(quote);
     }
 
+    @Override
+    public QuoteResponseDTO manage(QuoteManageDTO dto) {
+        Quote quote = findQuoteEntity(dto.quoteId());
+
+        String fileUrl = dto.attachedFile() != null && !dto.attachedFile().isEmpty()
+                ? uploadFile(dto.attachedFile())
+                : null;
+
+        quote.setBonCommand(fileUrl);
+        return mapper.mapToResponse(quote);
+    }
+
     private Quote findQuoteEntity(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Quote", id));
@@ -59,5 +75,9 @@ public class QuoteServiceImpl implements QuoteService {
     private AppUser getUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Creator not exists in system"));
+    }
+
+    private String uploadFile(MultipartFile file) {
+        return fileUploader.upload(file);
     }
 }

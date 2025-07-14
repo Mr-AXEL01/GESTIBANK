@@ -41,6 +41,8 @@ public class Quote {
 
     @OneToMany(mappedBy = "quote", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
+
+    private String bonCommand;
     
     public static Quote createQuote(AppUser creator, Demand demand, Double totalAmount) {
         Quote quote = new Quote();
