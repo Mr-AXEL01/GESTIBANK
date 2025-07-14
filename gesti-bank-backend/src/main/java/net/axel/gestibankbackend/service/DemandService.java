@@ -14,6 +14,8 @@ public interface DemandService {
 
     DemandResponseDTO update(DemandUpdateDTO dto, String email);
 
+    Demand updateStatus(Long id, String demandStatus);
+
     List<DemandResponseDTO> findAll(int page, int size);
 
     DemandResponseDTO findById(Long id);

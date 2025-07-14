@@ -34,7 +34,7 @@ public class QuoteController {
     }
 
     @PreAuthorize("hasRole('TECHNICIAN')")
-    @PostMapping
+    @PutMapping
     public ResponseEntity<QuoteResponseDTO> validate(@RequestBody @Valid QuoteValidateDTO dto,
                                                      Principal connectedUser) {
         QuoteResponseDTO quote = service.validate(dto, connectedUser.getName());
@@ -42,7 +42,7 @@ public class QuoteController {
     }
 
     @PreAuthorize("hasRole('MANAGER')")
-    @PostMapping
+    @PutMapping("/manage")
     public ResponseEntity<QuoteResponseDTO> manage(@ModelAttribute QuoteManageDTO dto) {
         QuoteResponseDTO quote = service.manage(dto);
         return ResponseEntity.ok(quote);

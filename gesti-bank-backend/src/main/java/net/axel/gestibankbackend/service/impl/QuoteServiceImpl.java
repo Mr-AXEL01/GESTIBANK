@@ -58,6 +58,8 @@ public class QuoteServiceImpl implements QuoteService {
     @Override
     public QuoteResponseDTO manage(QuoteManageDTO dto) {
         Quote quote = findQuoteEntity(dto.quoteId());
+        Demand demand = quote.getDemand();
+        demandService.updateStatus(demand.getId(), "DONE");
 
         String fileUrl = dto.attachedFile() != null && !dto.attachedFile().isEmpty()
                 ? uploadFile(dto.attachedFile())

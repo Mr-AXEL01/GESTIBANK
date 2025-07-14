@@ -104,6 +104,13 @@ public class DemandServiceImpl implements DemandService {
     }
 
     @Override
+    public Demand updateStatus(Long id, String demandStatus) {
+        Demand demand = findDemandEntity(id);
+        demand.setStatus(DemandStatus.valueOf(demandStatus));
+        return demand;
+    }
+
+    @Override
     public Demand findDemandEntity(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Demand", id));
