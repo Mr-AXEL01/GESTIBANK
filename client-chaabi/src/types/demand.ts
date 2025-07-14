@@ -19,7 +19,7 @@ export interface Demand {
   articles: Article[];
   fileName?: string;
   fileUrl?: string;
-  status:'CREATED' | 'RESPONSIBLE_APPROVED' | 'RESPONSIBLE_REJECTED' | 'TECHNICIAN_APPROVED' | 'TECHNICIAN_REJECTED' | 'IN_PROGRESS' | 'DONE';;
+  status:'CREATED' | 'RESPONSIBLE_APPROVED' | 'RESPONSIBLE_REJECTED' | 'TECHNICIAN_APPROVED' | 'TECHNICIAN_REJECTED' | 'IN_PROGRESS' | 'DONE';
   createdAt: string;
   createdBy: string;
   rejectionComment?: string; // Add rejection comment field
@@ -34,7 +34,7 @@ export interface DemandFilters {
 
 // New types for status update
 export interface UpdateDemandStatusRequest {
-  status: 'CREATED' | 'RESPONSIBLE_APPROVED' | 'RESPONSIBLE_REJECTED' | 'TECHNICIAN_APPROVED' | 'TECHNICIAN_REJECTED' | 'IN_PROGRESS' | 'DONE';;
+  status: 'CREATED' | 'RESPONSIBLE_APPROVED' | 'RESPONSIBLE_REJECTED' | 'TECHNICIAN_APPROVED' | 'TECHNICIAN_REJECTED' | 'IN_PROGRESS' | 'DONE';
   comment?: string; // Required when status is 'rejected'
 }
 
@@ -51,4 +51,17 @@ export interface ArticleUpdateDTO {
   name: string;
   description: string;
   quantity: number;
+}
+
+// New types for demand validation/approval
+export interface CommentRequestDTO {
+  content: string;
+  type: string; // Backend CommentType enum: "APPROVED" | "REJECTED"
+  demandId: number;
+  quoteId?: number; // Optional since it might not always be needed
+}
+
+export interface DemandValidateDTO {
+  demandStatus: string;
+  comment: CommentRequestDTO;
 }

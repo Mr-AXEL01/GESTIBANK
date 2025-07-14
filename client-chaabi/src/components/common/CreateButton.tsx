@@ -10,7 +10,7 @@ export const CreateButton: React.FC<CreateButtonProps> = ({ className = '' }) =>
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const canCreateDemand = user?.role === 'responsable' || user?.role === 'agent';
+  const canCreateDemand = user?.role === 'responsible' || user?.role === 'agent';
 
   if (!canCreateDemand) {
     return null;

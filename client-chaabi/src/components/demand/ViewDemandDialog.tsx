@@ -20,10 +20,8 @@ export const ViewDemandDialog: React.FC<ViewDemandDialogProps> = ({
   onClose, 
   demand 
 }) => {
-  console.log('ViewDemandDialog rendered with:', { isOpen, demand });
   
   if (!demand) {
-    console.log('No demand data provided');
     return null;
   }
 

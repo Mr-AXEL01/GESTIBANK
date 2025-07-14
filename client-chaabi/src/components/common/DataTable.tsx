@@ -8,9 +8,9 @@ export interface TableColumn {
 }
 
 export interface TableAction {
-    label: string;
+    label: string | React.ReactNode;
     onClick: (row: any) => void;
-    variant: 'primary' | 'secondary' | 'danger';
+    variant: 'primary' | 'secondary' | 'danger' | 'info';
     roles: string[];
     icon?: React.ReactNode;
     condition?: (row: any) => boolean; // Optional condition function
@@ -37,7 +37,8 @@ export const DataTable: React.FC<DataTableProps> = ({
         const classes = {
             primary: 'bg-orange-600 hover:bg-orange-700 text-white',
             secondary: 'bg-gray-600 hover:bg-gray-700 text-white',
-            danger: 'bg-red-600 hover:bg-red-700 text-white'
+            danger: 'bg-red-600 hover:bg-red-700 text-white',
+            info: 'bg-blue-600 hover:bg-blue-700 text-white'
         };
         return classes[variant as keyof typeof classes] || classes.primary;
     };

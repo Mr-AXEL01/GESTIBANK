@@ -31,7 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         ];
 
         switch (user?.role) {
-            case 'responsable':
+            case 'responsible':
                 return [
                     ...commonItems,
              

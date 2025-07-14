@@ -4,6 +4,7 @@ import type {
   DemandFilters,
   UpdateDemandStatusRequest,
   UpdateDemandRequest,
+  DemandValidateDTO,
 } from "../types/demand";
 
 const API_BASE_URL = "http://localhost:8080/api/v1";
@@ -18,6 +19,7 @@ class DemandService {
     this.updateDemand = this.updateDemand.bind(this);
     this.updateDemandStatus = this.updateDemandStatus.bind(this);
     this.deleteDemand = this.deleteDemand.bind(this);
+    this.validateDemand = this.validateDemand.bind(this);
   }
 
   private getAuthHeaders(): Record<string, string> {
@@ -131,6 +133,19 @@ class DemandService {
       const error = await response.text();
       throw new Error(error || `HTTP error! status: ${response.status}`);
     }
+  }
+
+  async validateDemand(validateData: DemandValidateDTO): Promise<Demand> {
+    const response = await fetch(`${API_BASE_URL}/demands/validate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(validateData),
+    });
+
+    return this.handleResponse<Demand>(response);
   }
 }
 

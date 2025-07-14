@@ -41,7 +41,7 @@ export const protectedRoutes: RouteObject[] = [
         path: '/dashboard/demands/create',
         element: (
             <ProtectedRoute>
-                <RoleGuard allowedRoles={['agent', 'responsable']}>
+                <RoleGuard allowedRoles={['agent', 'responsible']}>
                     <CreateDemand />
                 </RoleGuard>
             </ProtectedRoute>
@@ -51,7 +51,7 @@ export const protectedRoutes: RouteObject[] = [
         path: '/dashboard/demands/:id',
         element: (
             <ProtectedRoute>
-                <RoleGuard allowedRoles={['agent', 'responsable']}>
+                <RoleGuard allowedRoles={['agent', 'responsible']}>
                     <DemandDetails />
                 </RoleGuard>
             </ProtectedRoute>
@@ -77,7 +77,7 @@ export const protectedRoutes: RouteObject[] = [
         path: '/dashboard/profile',
         element: (
             <ProtectedRoute>
-                <RoleGuard allowedRoles={['agent', 'responsable']}>
+                <RoleGuard allowedRoles={['agent', 'responsible']}>
                     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                         <div className="bg-white p-8 rounded-lg shadow-md text-center">
                             <h2 className="text-2xl font-bold text-gray-900 mb-4">My Profile</h2>

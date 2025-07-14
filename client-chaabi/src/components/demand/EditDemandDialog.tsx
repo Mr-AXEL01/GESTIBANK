@@ -53,8 +53,8 @@ export const EditDemandDialog: React.FC<EditDemandDialogProps> = ({
     resolver: zodResolver(editDemandSchema),
   });
 
-  // Only allow agents to edit demands
-  if (user?.role !== 'agent') {
+  // Only allow agents and responsible users to edit demands
+  if (user?.role !== 'agent' && user?.role !== 'responsible') {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-md bg-white">
@@ -63,7 +63,7 @@ export const EditDemandDialog: React.FC<EditDemandDialogProps> = ({
               Access Denied
             </DialogTitle>
             <DialogDescription>
-              Only agents can edit demands.
+              Only agents and responsible users can edit demands.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end pt-4">

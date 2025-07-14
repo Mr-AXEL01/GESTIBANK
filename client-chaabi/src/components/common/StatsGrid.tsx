@@ -18,7 +18,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ customStats }) => {
 
     const getDefaultStatsForRole = (): StatItem[] => {
         switch (user?.role) {
-            case 'responsable':
+            case 'responsible':
                 return [
                     {
                         title: 'Total Agents',

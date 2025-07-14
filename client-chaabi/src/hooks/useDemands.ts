@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { demandService } from '../services/demandService';
 import { mockDemands } from '../utils/mockData';
-import type { CreateDemandRequest, Demand, UpdateDemandStatusRequest, UpdateDemandRequest } from '../types/demand';
+import type { CreateDemandRequest, Demand, UpdateDemandStatusRequest, UpdateDemandRequest, DemandValidateDTO } from '../types/demand';
 
 // Hook to fetch all demands
 export const useDemands = () => {
@@ -162,6 +162,36 @@ export const useDeleteDemand = () => {
     },
     onError: (error) => {
       console.error('Delete demand mutation error:', error);
+    },
+  });
+};
+
+// Hook to validate/approve demand
+export const useValidateDemand = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (validateData: DemandValidateDTO): Promise<Demand> => {
+      try {
+        return await demandService.validateDemand(validateData);
+      } catch (error) {
+        console.error('Error in useValidateDemand:', error);
+        throw error;
+      }
+    },
+    onSuccess: (updatedDemand) => {
+      // Update the demands list
+      queryClient.setQueryData(['demands'], (old: Demand[] | undefined) => {
+        return old?.map(demand => 
+          demand.id === updatedDemand.id ? updatedDemand : demand
+        ) || [];
+      });
+      
+      // Update single demand cache
+      queryClient.setQueryData(['demand', updatedDemand.id.toString()], updatedDemand);
+    },
+    onError: (error) => {
+      console.error('Validate demand mutation error:', error);
     },
   });
 };
