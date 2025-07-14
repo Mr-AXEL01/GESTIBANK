@@ -57,4 +57,15 @@ public class AppUser implements UserDetails {
     public String getUsername() {
         return this.email;
     }
+
+    public static AppUser register(String firstName, String lastName, String email, String password, AppRole role) {
+        AppUser newUser  = new AppUser();
+        newUser.firstName    = firstName;
+        newUser.lastName    = lastName;
+        newUser.email    = email;
+        newUser.password = password;
+        newUser.role    = role;
+        newUser.createdAt = Instant.now();
+        return newUser;
+    }
 }

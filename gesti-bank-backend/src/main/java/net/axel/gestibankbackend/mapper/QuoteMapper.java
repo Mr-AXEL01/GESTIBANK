@@ -1,6 +1,7 @@
 package net.axel.gestibankbackend.mapper;
 
 import lombok.RequiredArgsConstructor;
+import net.axel.gestibankbackend.domain.dtos.quote.QuoteEmbeddedDTO;
 import net.axel.gestibankbackend.domain.dtos.quote.responses.QuoteResponseDTO;
 import net.axel.gestibankbackend.domain.entities.Quote;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,17 @@ public class QuoteMapper {
                 demandMapper.toEmbeddedDto(quote.getDemand()),
                 quote.getComments().stream().map(commentMapper::mapToEmbedded).toList(),
                 quote.getBonCommand()
+        );
+    }
+
+    public QuoteEmbeddedDTO mapToEmbedded(Quote quote) {
+        if (quote == null) return null;
+
+        return new QuoteEmbeddedDTO(
+                quote.getId(),
+                quote.getCreatedAt(),
+                quote.getTotalAmount(),
+                quote.getStatus()
         );
     }
 }
