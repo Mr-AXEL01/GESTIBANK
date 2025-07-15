@@ -259,8 +259,9 @@ export const DashboardOverview: React.FC = () => {
                             // Status badge with colors
                             render: (value: string) => (
                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                    value === 'approved' ? 'bg-green-100 text-green-800' : 
-                                    value === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                                    value === 'TECHNICIAN_APPROVED' || value === 'RESPONSIBLE_APPROVED' ? 'bg-green-100 text-green-800' : 
+                                    value === 'DONE' ? 'bg-blue-100 text-blue-800' :
+                                    value === 'CREATED' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
                                 }`}>
                                     {value}
                                 </span>
@@ -549,8 +550,10 @@ export const DashboardOverview: React.FC = () => {
                             header: 'Status', 
                             render: (value: string) => (
                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                    value === 'approved' ? 'bg-green-100 text-green-800' : 
-                                    value === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                                    value === 'TECHNICIAN_APPROVED' ? 'bg-green-100 text-green-800' : 
+                                    value === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
+                                    value === 'DONE' ? 'bg-purple-100 text-purple-800' : 
+                                    'bg-yellow-100 text-yellow-800'
                                 }`}>
                                     {value}
                                 </span>

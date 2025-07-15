@@ -2,7 +2,6 @@ import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useTheme } from '../../../context/ThemeContext';
 
 const basicInfoSchema = z.object({
   title: z.string().min(3, 'Le titre doit contenir au moins 3 caractères').max(100, 'Le titre doit contenir moins de 100 caractères'),
@@ -22,23 +21,14 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
   onDataChange, 
   onNext 
 }) => {
-  const theme = useTheme();
-
   const {
     control,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<BasicInfoFormData>({
     resolver: zodResolver(basicInfoSchema),
     defaultValues: data,
   });
-
-  const watchedValues = watch();
-
-  React.useEffect(() => {
-    onDataChange(watchedValues);
-  }, [watchedValues, onDataChange]);
 
   const onSubmit = (formData: BasicInfoFormData) => {
     onDataChange(formData);
