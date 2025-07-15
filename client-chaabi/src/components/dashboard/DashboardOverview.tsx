@@ -17,12 +17,15 @@ import { AdminDashboard } from './admin/AdminDashboard';
 import type { TableColumn, TableAction } from '../common/DataTable';
 import type { Demand } from '../../types/demand';
 import type { Quote } from '../../services/quoteService';
+import { ViewDevisModal } from '../demand/ViewDevisModal';
 
 // Main dashboard component - shows different content based on user role
 export const DashboardOverview: React.FC = () => {
     const { user } = useAuth();
     const { data: demands = [], isLoading } = useDemands();
     const { data: quotes = [] } = useQuotes();
+    const [selectedDevis, setSelectedDevis] = useState<Quote | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const validateDemandMutation = useValidateDemand();
     const createQuoteMutation = useCreateQuote();
     const manageQuoteMutation = useManageQuote();
@@ -38,9 +41,21 @@ export const DashboardOverview: React.FC = () => {
     const [isAttachingFile, setIsAttachingFile] = useState(false);
 
     // Debug logs
+    console.log('DashboardOverview - quotes:', quotes);
     console.log('DashboardOverview - User:', user);
     console.log('DashboardOverview - User role:', user?.role);
     console.log('DashboardOverview - Role type:', typeof user?.role);
+
+    const handleViewDetails = (devis: Quote) => {
+        console.log('Viewing devis details:', devis);
+        setSelectedDevis(devis);
+        setIsModalOpen(true);
+    }
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedDevis(null);
+      };
 
     const handleViewDemand = (demand: Demand) => {
         console.log('Viewing demand:', demand);
@@ -678,7 +693,7 @@ export const DashboardOverview: React.FC = () => {
                                     {demands
                                         .filter(demand => demand.status === 'TECHNICIAN_APPROVED')
                                         .map((demand) => {
-                                            const demandQuotes = quotes.filter(q => q.demandId === demand.id);
+                                            const demandQuotes = quotes.filter(q => q.demand?.id === demand.id);
                                             return demandQuotes.length > 0 ? demandQuotes.map((quote) => (
                                                 <tr key={`${demand.id}-${quote.id}`} className="hover:bg-gray-50">
                                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -714,7 +729,7 @@ export const DashboardOverview: React.FC = () => {
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                                         <button
-                                                            onClick={() => handleViewDemand(demand)}
+                                                            onClick={() => handleViewDetails(quote)}
                                                             className="text-blue-600 hover:text-blue-900 transition-colors"
                                                         >
                                                             View
@@ -815,6 +830,14 @@ export const DashboardOverview: React.FC = () => {
                     />
                 </>
             )}
+
+
+            {/* View quote dialog */}
+            <ViewDevisModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                devis={selectedDevis}
+            />
 
             {/* View demand dialog */}
             <ViewDemandDialog

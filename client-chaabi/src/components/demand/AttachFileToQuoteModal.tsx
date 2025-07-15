@@ -77,7 +77,7 @@ export const AttachFileToQuoteModal: React.FC<AttachFileToQuoteModalProps> = ({
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="font-medium text-blue-900">Quote #{quote.id}</p>
-                    <p className="text-sm text-blue-700 mt-1">Amount: ${quote.totalAmount.toFixed(2)}</p>
+                    <p className="text-sm text-blue-700 mt-1">Amount: {quote.totalAmount.toFixed(2)} MAD</p>
                   </div>
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     {quote.status}

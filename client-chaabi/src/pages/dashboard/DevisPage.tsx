@@ -191,7 +191,7 @@ export const DevisPage: React.FC = () => {
       {
         key: 'totalAmount',
         header: 'Total Amount',
-        render: (value: number) => `€${value.toFixed(2)}`
+        render: (value: number) => `${value.toFixed(2)} MAD`
       },
       {
         key: 'status',

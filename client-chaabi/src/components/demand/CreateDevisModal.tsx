@@ -140,7 +140,7 @@ export const CreateDevisModal: React.FC<CreateDevisModalProps> = ({
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Quote Information</h3>
                 <div>
                   <label htmlFor="totalAmount" className="block text-sm font-medium text-gray-700 mb-2">
-                    Total Amount (€)
+                    Total Amount (MAD)
                   </label>
                   <input
                     type="number"

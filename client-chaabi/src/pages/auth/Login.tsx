@@ -271,12 +271,8 @@ export const Login: React.FC = () => {
                                 <p className="text-sm text-gray-600 mb-3 font-medium">Comptes de test :</p>
                                 <div className="space-y-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-3">
                                     <div className="flex justify-between">
-                                        <span className="font-medium">Responsable:</span>
-                                        <span>responsable@chaabi.com / password</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="font-medium">Agent:</span>
-                                        <span>agent@chaabi.com / password</span>
+                                        <span className="font-medium">Admin:</span>
+                                        <span>admin@chaabi.com / 12345678</span>
                                     </div>
                                 </div>
                             </div>
