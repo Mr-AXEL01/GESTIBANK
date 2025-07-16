@@ -258,12 +258,8 @@ export const DashboardOverview: React.FC = () => {
                             header: 'Status', 
                             // Status badge with colors
                             render: (value: string) => (
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                    value === 'TECHNICIAN_APPROVED' || value === 'RESPONSIBLE_APPROVED' ? 'bg-green-100 text-green-800' : 
-                                    value === 'DONE' ? 'bg-blue-100 text-blue-800' :
-                                    value === 'CREATED' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
-                                }`}>
-                                    {value}
+                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                                    {getStatusBadge(value)}
                                 </span>
                             )
                         },
@@ -351,13 +347,8 @@ export const DashboardOverview: React.FC = () => {
                             key: 'status', 
                             header: 'Status', 
                             render: (value: string) => (
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                    value === 'TECHNICIAN_APPROVED' ? 'bg-green-100 text-green-800' : 
-                                    value === 'RESPONSIBLE_APPROVED' ? 'bg-blue-100 text-blue-800' :
-                                    value === 'TECHNICIAN_REJECTED' ? 'bg-red-100 text-red-800' : 
-                                    'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                    {value}
+                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                                    {getStatusBadge(value)}
                                 </span>
                             )
                         },
@@ -425,12 +416,8 @@ export const DashboardOverview: React.FC = () => {
                             key: 'status', 
                             header: 'Status', 
                             render: (value: string) => (
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                    value === 'APPROVED' ? 'bg-green-100 text-green-800' : 
-                                    value === 'CREATED' ? 'bg-yellow-100 text-yellow-800' :
-                                    'bg-red-100 text-red-800'
-                                }`}>
-                                    {value}
+                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                                    {getStatusBadge(value)}
                                 </span>
                             )
                         },
@@ -497,13 +484,8 @@ export const DashboardOverview: React.FC = () => {
                             key: 'status', 
                             header: 'Status', 
                             render: (value: string) => (
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                    value === 'TECHNICIAN_APPROVED' ? 'bg-green-100 text-green-800' : 
-                                    value === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
-                                    value === 'DONE' ? 'bg-purple-100 text-purple-800' : 
-                                    'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                    {value}
+                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                                    {getStatusBadge(value)}
                                 </span>
                             )
                         },
@@ -549,13 +531,8 @@ export const DashboardOverview: React.FC = () => {
                             key: 'status', 
                             header: 'Status', 
                             render: (value: string) => (
-                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                    value === 'TECHNICIAN_APPROVED' ? 'bg-green-100 text-green-800' : 
-                                    value === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' :
-                                    value === 'DONE' ? 'bg-purple-100 text-purple-800' : 
-                                    'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                    {value}
+                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                                    {getStatusBadge(value)}
                                 </span>
                             )
                         },
@@ -912,3 +889,24 @@ export const DashboardOverview: React.FC = () => {
         </div>
     );
 };
+
+
+const getStatusBadge = (status: string) => {
+    const config = {
+  CREATED: { color: 'bg-orange-400 text-white border-yellow-200', label: 'Créée' },
+  RESPONSIBLE_APPROVED: { color: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Approuvée (Responsable)' },
+  RESPONSIBLE_REJECTED: { color: 'bg-red-100 text-red-800 border-red-200', label: 'Rejetée (Responsable)' },
+  TECHNICIAN_APPROVED: { color: 'bg-green-100 text-green-800 border-green-200', label: 'Approuvée (Technicien)' },
+  TECHNICIAN_REJECTED: { color: 'bg-red-100 text-red-800 border-red-200', label: 'Rejetée (Technicien)' },
+  IN_PROGRESS: { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', label: 'En cours' },
+  DONE: { color: 'bg-green-200 text-green-900 border-green-300', label: 'Terminée' }
+};
+
+const statusConfig = config[status as keyof typeof config] || config.CREATED;
+    
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusConfig.color}`}>
+        {statusConfig.label}
+      </span>
+    );
+  };

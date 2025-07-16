@@ -185,31 +185,26 @@ export const DevisPage: React.FC = () => {
     const columns: TableColumn[] = [
       { 
         key: 'demand', 
-        header: 'Demand Title',
+        header: 'Demande titre',
         render: (demand: any) => demand?.title || 'N/A'
       },
       {
         key: 'totalAmount',
-        header: 'Total Amount',
+        header: 'Montant total',
         render: (value: number) => `${value.toFixed(2)} MAD`
       },
       {
         key: 'status',
-        header: 'Status',
+        header: 'Statut',
         render: (value: string) => (
-          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-            value === 'APPROVED' ? 'bg-green-100 text-green-800' :
-            value === 'CREATED' ? 'bg-yellow-100 text-yellow-800' :
-            value === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-            'bg-red-100 text-red-800'
-          }`}>
-            {value}
+          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+            {getStatusBadge(value)}
           </span>
         )
       },
       { 
         key: 'provider', 
-        header: 'Provider Name',
+        header: 'Nom du prestataire',
         render: (provider: any, row: Quote) => {
           // Try provider first, then fallback to createdBy
           const providerInfo = provider || row.createdBy;
@@ -233,12 +228,12 @@ export const DevisPage: React.FC = () => {
         });
 
     return {
-      title: user.role === 'technician' ? 'All Quotes/Devis' : 'My Quotes/Devis',
+      title: user.role === 'technician' ? 'Toutes les Devis' : 'Mes Devis',
       columns: columns,
       data: filteredQuotes,
       actions: [
         {
-          label: isProcessing ? 'Processing...' : 'Approve',
+          label: isProcessing ? 'Traitement...' : 'Approuver',
           onClick: (row: Quote) => {
             console.log('User role:', user.role);
             console.log('Quote status:', row.status);
@@ -252,7 +247,7 @@ export const DevisPage: React.FC = () => {
           }
         },
         {
-          label: isProcessing ? 'Processing...' : 'Reject',
+          label: isProcessing ? 'Traitement...' : 'Rejeter',
           onClick: (row: Quote) => {
             console.log('User role:', user.role);
             console.log('Quote status:', row.status);
@@ -272,14 +267,14 @@ export const DevisPage: React.FC = () => {
           roles: ['technician', 'provider']
         },
         {
-          label: 'Edit',
+          label: 'Modifier',
           onClick: handleEditQuote,
           variant: 'secondary' as const,
           roles: ['provider'],
           condition: (row: Quote) => row.status === 'REJECTED' || row.status === 'rejected'
         },
         {
-          label: 'Reason',
+          label: 'Raison',
           onClick: handleViewReason,
           variant: 'info' as const,
           roles: ['provider'],
@@ -336,7 +331,7 @@ export const DevisPage: React.FC = () => {
           {/* Pending Devis */}
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-orange-800">Pending Devis</h3>
+              <h3 className="text-sm font-medium text-orange-800">Devis en attente</h3>
               <div className="p-2 bg-orange-100 rounded-lg">
                 <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -346,13 +341,13 @@ export const DevisPage: React.FC = () => {
             <div className="text-2xl font-bold text-orange-900 mb-1">
               {pendingCount}
             </div>
-            <div className="text-sm text-orange-600">Awaiting review</div>
+            <div className="text-sm text-orange-600">En attente de révision</div>
           </div>
 
           {/* Approved Devis */}
           <div className="bg-green-50 border border-green-200 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-green-800">Approved Devis</h3>
+              <h3 className="text-sm font-medium text-green-800">Devis approuvés</h3>
               <div className="p-2 bg-green-100 rounded-lg">
                 <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -362,13 +357,13 @@ export const DevisPage: React.FC = () => {
             <div className="text-2xl font-bold text-green-900 mb-1">
               {approvedCount}
             </div>
-            <div className="text-sm text-green-600">Successfully approved</div>
+            <div className="text-sm text-green-600">Approuvé avec succès</div>
           </div>
 
           {/* Rejected Devis */}
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-red-800">Rejected Devis</h3>
+              <h3 className="text-sm font-medium text-red-800">Devis rejetés</h3>
               <div className="p-2 bg-red-100 rounded-lg">
                 <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -378,13 +373,13 @@ export const DevisPage: React.FC = () => {
             <div className="text-2xl font-bold text-red-900 mb-1">
               {rejectedCount}
             </div>
-            <div className="text-sm text-red-600">Need revision</div>
+            <div className="text-sm text-red-600">besoin de révision</div>
           </div>
 
           {/* Total Value */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-blue-800">Total Value</h3>
+              <h3 className="text-sm font-medium text-blue-800">Valeur totale</h3>
               <div className="p-2 bg-blue-100 rounded-lg">
                 <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
@@ -392,9 +387,9 @@ export const DevisPage: React.FC = () => {
               </div>
             </div>
             <div className="text-2xl font-bold text-blue-900 mb-1">
-              €{totalValue.toFixed(2)}
+              {totalValue.toFixed(2)} MAD
             </div>
-            <div className="text-sm text-blue-600">Combined total</div>
+            <div className="text-sm text-blue-600">Total combiné</div>
           </div>
         </div>
 
@@ -402,12 +397,12 @@ export const DevisPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">
-              {user.role === 'technician' ? 'All Quotes Management' : 'My Quotes/Devis'}
+              {user.role === 'technician' ? 'Toutes les Devis' : 'Mes Devis'}
             </h2>
             <p className="text-sm text-gray-600 mt-1">
               {user.role === 'technician' 
-                ? 'Review and manage all quotes from providers'
-                : 'Track your submitted quotes and their approval status'
+                ? 'Examiner et gérer toutes les devis des fournisseurs'
+                : 'Suivre vos devis soumis et leur statut d\'approbation'
               }
             </p>
           </div>
@@ -418,7 +413,7 @@ export const DevisPage: React.FC = () => {
               columns={tableConfig.columns}
               data={tableConfig.data}
               actions={tableConfig.actions}
-              emptyMessage="No quotes found"
+              emptyMessage="Aucune devis trouvée"
             />
           </div>
         </div>
@@ -435,7 +430,7 @@ export const DevisPage: React.FC = () => {
           isOpen={isRejectModalOpen}
           onClose={handleCloseRejectModal}
           onConfirm={handleConfirmReject}
-          quoteName={quoteToReject?.demand?.title ? `quote for "${quoteToReject.demand.title}"` : 'this quote'}
+          quoteName={quoteToReject?.demand?.title ? `devis pour "${quoteToReject.demand.title}"` : 'ce devis'}
         />
 
         {/* Reason Modal - Show rejection reason */}
@@ -457,3 +452,24 @@ export const DevisPage: React.FC = () => {
     </DashboardLayout>
   );
 };
+
+
+const getStatusBadge = (status: string) => {
+    const config = {
+  CREATED: { color: 'bg-orange-400 text-white border-yellow-200', label: 'Créée' },
+  RESPONSIBLE_APPROVED: { color: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Approuvée (Responsable)' },
+  RESPONSIBLE_REJECTED: { color: 'bg-red-100 text-red-800 border-red-200', label: 'Rejetée (Responsable)' },
+  TECHNICIAN_APPROVED: { color: 'bg-green-100 text-green-800 border-green-200', label: 'Approuvée (Technicien)' },
+  TECHNICIAN_REJECTED: { color: 'bg-red-100 text-red-800 border-red-200', label: 'Rejetée (Technicien)' },
+  IN_PROGRESS: { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', label: 'En cours' },
+  DONE: { color: 'bg-green-200 text-green-900 border-green-300', label: 'Terminée' }
+};
+
+const statusConfig = config[status as keyof typeof config] || config.CREATED;
+    
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusConfig.color}`}>
+        {statusConfig.label}
+      </span>
+    );
+  };
