@@ -9,7 +9,7 @@ export const Profile: React.FC = () => {
       <div className="flex items-center justify-center min-h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading profile...</p>
+          <p className="text-gray-600">Chargement du profil...</p>
         </div>
       </div>
     );
@@ -24,12 +24,31 @@ export const Profile: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Profile</h3>
-          <p className="text-gray-600">{error?.message || 'Failed to load profile information'}</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Erreur de chargement du profil</h3>
+          <p className="text-gray-600">{error?.message || 'Échec du chargement des informations du profil'}</p>
         </div>
       </div>
     );
   }
+
+  const getRoleFrenchName = (role: string) => {
+    switch (role.toLowerCase()) {
+      case 'agent':
+        return 'Agent';
+      case 'responsible':
+        return 'Responsable';
+      case 'admin':
+        return 'Admin';
+      case 'technician':
+        return 'Technicien';
+      case 'provider':
+        return 'Prestataire';
+      case 'manager':
+        return 'Gestionnaire';
+      default:
+        return role;
+    }
+  };
 
   const getRoleColor = (role: string) => {
     switch (role.toLowerCase()) {
@@ -126,31 +145,31 @@ export const Profile: React.FC = () => {
               <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Personal Information
+              Informations Personnelles
             </h2>
           </div>
           <div className="p-6 space-y-4">
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-sm font-medium text-gray-600">User ID</span>
+              <span className="text-sm font-medium text-gray-600">Utilisateur ID</span>
               <span className="text-sm text-gray-900 font-mono">#{user.id}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-sm font-medium text-gray-600">First Name</span>
+              <span className="text-sm font-medium text-gray-600">Prénom</span>
               <span className="text-sm text-gray-900">{user.firstName}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-sm font-medium text-gray-600">Last Name</span>
+              <span className="text-sm font-medium text-gray-600">Nom</span>
               <span className="text-sm text-gray-900">{user.lastName}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-sm font-medium text-gray-600">Email Address</span>
+              <span className="text-sm font-medium text-gray-600">Adresse Email</span>
               <span className="text-sm text-gray-900">{user.email}</span>
             </div>
             <div className="flex justify-between items-center py-2">
-              <span className="text-sm font-medium text-gray-600">Role</span>
+              <span className="text-sm font-medium text-gray-600">Rôle</span>
               <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getRoleColor(user.role)}`}>
                 {getRoleIcon(user.role)}
-                <span className="ml-2 capitalize">{user.role}</span>
+                <span className="ml-2">{getRoleFrenchName(user.role)}</span>
               </div>
             </div>
           </div>
@@ -163,23 +182,23 @@ export const Profile: React.FC = () => {
               <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Account Information
+              Informations du Compte
             </h2>
           </div>
           <div className="p-6 space-y-4">
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-sm font-medium text-gray-600">Account Status</span>
+              <span className="text-sm font-medium text-gray-600">Statut du Compte</span>
               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                 <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                Active
+                Actif
               </span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-sm font-medium text-gray-600">Access Level</span>
-              <span className="text-sm text-gray-900 capitalize">{user.role}</span>
+              <span className="text-sm font-medium text-gray-600">Niveau d'Accès</span>
+              <span className="text-sm text-gray-900">{getRoleFrenchName(user.role)}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-sm font-medium text-gray-600">Last Login</span>
+              <span className="text-sm font-medium text-gray-600">Dernière Connexion</span>
               <span className="text-sm text-gray-900">
                 {new Date().toLocaleDateString('en-US', {
                   year: 'numeric',
@@ -194,7 +213,7 @@ export const Profile: React.FC = () => {
               <span className="text-sm font-medium text-gray-600">Session</span>
               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></div>
-                Online
+                En ligne
               </span>
             </div>
           </div>

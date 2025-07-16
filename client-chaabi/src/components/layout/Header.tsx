@@ -45,13 +45,13 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) =
                 </svg>
               </button>
               <h1 className="text-base md:text-xl font-semibold text-gray-900">
-                Welcome, {user?.name}
+                Bienvune, {user?.name}
               </h1>
             </div>
             <div className="flex items-center space-x-4">
           
               <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full capitalize">
-                {user?.role}
+                {getRoleFrenchName(user?.role)}
               </span>
               <button
                 onClick={logout}
@@ -65,3 +65,23 @@ export const Header: React.FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) =
       </header>
     );
 };
+
+
+ const getRoleFrenchName = (role?: string) => {
+    switch (role?.toLowerCase()) {
+      case 'agent':
+        return 'Agent';
+      case 'responsible':
+        return 'Responsable';
+      case 'admin':
+        return 'Admin';
+      case 'technician':
+        return 'Technicien';
+      case 'provider':
+        return 'Prestataire';
+      case 'manager':
+        return 'Gestionnaire';
+      default:
+        return role;
+    }
+  };

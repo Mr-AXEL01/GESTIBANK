@@ -239,12 +239,12 @@ export const DashboardOverview: React.FC = () => {
             case 'responsible':
                 // Responsable sees all demands and can approve them
                 return {
-                    title: 'Recent Demands',
+                    title: 'Demandes Récentes',
                     columns: [
-                        { key: 'title', header: 'Title' },
+                        { key: 'title', header: 'Titre' },
                         { 
                             key: 'createdBy', 
-                            header: 'Created By',
+                            header: 'Créé par',
                             render: (value: any) => {
                                 if (typeof value === 'string') return value;
                                 if (typeof value === 'object' && value !== null) {
@@ -269,7 +269,7 @@ export const DashboardOverview: React.FC = () => {
                         },
                         { 
                             key: 'createdAt', 
-                            header: 'Created At', 
+                            header: 'Créé le', 
                             render: (value: string) => new Date(value).toLocaleString()
                         }
                     ] as TableColumn[],
@@ -282,21 +282,21 @@ export const DashboardOverview: React.FC = () => {
                             roles: ['responsible', 'agent', 'technician']
                         },
                         {
-                            label: 'Approve',
+                            label: 'Valider',
                             onClick: (row: Demand) => handleApproveDemand(row),
                             variant: 'secondary' as const,
                             roles: ['responsible'],
                             condition: (row: Demand) => row.status === 'CREATED'
                         },
                         {
-                            label: 'Reject',
+                            label: 'Rejeter',
                             onClick: (row: Demand) => handleRejectDemand(row),
                             variant: 'danger' as const,
                             roles: ['responsible'],
                             condition: (row: Demand) => row.status === 'CREATED'
                         },
                         {
-                            label: 'Edit',
+                            label: 'Modifier',
                             onClick: (row: Demand) => handleEditDemand(row),
                             variant: 'secondary' as const,
                             roles: ['responsible'],
@@ -320,7 +320,7 @@ export const DashboardOverview: React.FC = () => {
                                             d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4z" 
                                         />
                                     </svg>
-                                    <span>Reason</span>
+                                    <span>Raison</span>
                                 </div>
                             ),
                             onClick: (row: Demand) => handleShowRejectionReason(row),
@@ -333,12 +333,12 @@ export const DashboardOverview: React.FC = () => {
             case 'technician':
                 // Technician sees RESPONSIBLE_APPROVED demands and can approve/reject them
                 return {
-                    title: 'Demands for Technical Review',
+                    title: 'Demandes en Attente de Révision',
                     columns: [
-                        { key: 'title', header: 'Title' },
+                        { key: 'title', header: 'Titre' },
                         { 
                             key: 'createdBy', 
-                            header: 'Created By',
+                            header: 'Créé Par',
                             render: (value: any) => {
                                 if (typeof value === 'string') return value;
                                 if (typeof value === 'object' && value !== null) {
@@ -363,7 +363,7 @@ export const DashboardOverview: React.FC = () => {
                         },
                         { 
                             key: 'createdAt', 
-                            header: 'Created At', 
+                            header: 'Créé le', 
                             render: (value: string) => new Date(value).toLocaleString()
                         }
                     ] as TableColumn[],
@@ -376,14 +376,14 @@ export const DashboardOverview: React.FC = () => {
                             roles: ['technician']
                         },
                         {
-                            label: 'Approve',
+                            label: 'Valider',
                             onClick: (row: Demand) => handleApproveDemand(row),
                             variant: 'secondary' as const,
                             roles: ['technician'],
                             condition: (row: Demand) => row.status === 'RESPONSIBLE_APPROVED'
                         },
                         {
-                            label: 'Reject',
+                            label: 'Rejeter',
                             onClick: (row: Demand) => handleRejectDemand(row),
                             variant: 'danger' as const,
                             roles: ['technician'],
@@ -394,26 +394,26 @@ export const DashboardOverview: React.FC = () => {
             case 'manager':
                 // Manager sees approved quotes/devis and can attach files to them
                 return {
-                    title: 'Approved Quotes/Devis',
+                    title: 'Attacher Bons de Commande aux Devis',
                     columns: [
                         { 
                             key: 'id', 
-                            header: 'Quote ID',
+                            header: 'ID du Devis',
                             render: (value: number) => `#${value}`
                         },
                         { 
                             key: 'totalAmount', 
-                            header: 'Total Amount',
+                            header: 'Montant Total',
                             render: (value: number) => `$${value.toFixed(2)}`
                         },
                         { 
                             key: 'demand', 
-                            header: 'Demand Title',
+                            header: 'Titre de la Demande',
                             render: (value: any) => value?.title || 'N/A'
                         },
                         { 
                             key: 'provider', 
-                            header: 'Provider',
+                            header: 'Prestataire',
                             render: (value: any) => {
                                 if (value) {
                                     return `${value.firstName || ''} ${value.lastName || ''}`.trim() || value.email || 'N/A';
@@ -436,7 +436,7 @@ export const DashboardOverview: React.FC = () => {
                         },
                         { 
                             key: 'createdAt', 
-                            header: 'Created At', 
+                            header: 'Créé le', 
                             render: (value: string) => new Date(value).toLocaleDateString()
                         }
                     ] as TableColumn[],
@@ -464,7 +464,7 @@ export const DashboardOverview: React.FC = () => {
                                             d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" 
                                         />
                                     </svg>
-                                    <span>Attach File</span>
+                                    <span>Attacher un Fichier</span>
                                 </div>
                             ),
                             onClick: (row: Quote) => {
@@ -479,12 +479,12 @@ export const DashboardOverview: React.FC = () => {
             case 'provider':
                 // Provider sees approved demands and can create quotes/devis
                 return {
-                    title: 'Approved Demands - Create Quotes',
+                    title: 'Demandes Approuvées - Créer Devis',
                     columns: [
-                        { key: 'title', header: 'Title' },
+                        { key: 'title', header: 'Titre' },
                         { 
                             key: 'createdBy', 
-                            header: 'Created By',
+                            header: 'Créé Par',
                             render: (value: any) => {
                                 if (typeof value === 'string') return value;
                                 if (typeof value === 'object' && value !== null) {
@@ -509,7 +509,7 @@ export const DashboardOverview: React.FC = () => {
                         },
                         { 
                             key: 'createdAt', 
-                            header: 'Created At', 
+                            header: 'Créé le', 
                             render: (value: string) => new Date(value).toLocaleString()
                         }
                     ] as TableColumn[],
@@ -522,7 +522,7 @@ export const DashboardOverview: React.FC = () => {
                             roles: ['provider']
                         },
                         {
-                            label: 'Create Devis',
+                            label: 'Créer Devis',
                             onClick: (row: Demand) => handleCreateDevis(row),
                             variant: 'secondary' as const,
                             roles: ['provider'],
@@ -533,7 +533,7 @@ export const DashboardOverview: React.FC = () => {
             case 'admin':
                 // Admin can see all users and manage them
                 return {
-                    title: 'All Users',
+                    title: 'Tous les Utilisateurs',
                     columns: [],
                     data: [],
                     actions: []
@@ -542,9 +542,9 @@ export const DashboardOverview: React.FC = () => {
             default:
                 // Agent sees their own demands but not technician rejected ones
                 return {
-                    title: 'My Recent Demands',
+                    title: 'Mes Demandes Récentes',
                     columns: [
-                        { key: 'title', header: 'Title' },
+                        { key: 'title', header: 'Titre' },
                         { 
                             key: 'status', 
                             header: 'Status', 
@@ -561,7 +561,7 @@ export const DashboardOverview: React.FC = () => {
                         },
                         { 
                             key: 'createdAt', 
-                            header: 'Created At', 
+                            header: 'Créé le', 
                             render: (value: string) => new Date(value).toLocaleString()
                         }
                     ] as TableColumn[],
@@ -574,7 +574,7 @@ export const DashboardOverview: React.FC = () => {
                             roles: ['agent', 'responsible', 'technician']
                         },
                         {
-                            label: 'Edit',
+                            label: 'Modifier',
                             onClick: (row: Demand) => handleEditDemand(row),
                             variant: 'secondary' as const,
                             roles: ['agent', 'responsible'],
@@ -596,7 +596,7 @@ export const DashboardOverview: React.FC = () => {
                                             d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4z" 
                                         />
                                     </svg>
-                                    <span>Reason</span>
+                                    <span>Raison</span>
                                 </div>
                             ),
                             onClick: (row: Demand) => handleShowRejectionReason(row),
@@ -620,8 +620,8 @@ export const DashboardOverview: React.FC = () => {
                 // Manager Dashboard - Shows approved demands with quotes ready for file attachment
                 <>
                     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-2">Manager Dashboard</h1>
-                        <p className="text-gray-600">Manage approved demands and attach files to quotes</p>
+                        <h1 className="text-2xl font-bold text-gray-900 mb-2">Gestionnaire Dashboard</h1>
+                        <p className="text-gray-600">Gérer les demandes approuvées et joindre des fichiers aux devis</p>
                     </div>
 
                     {/* Stats for Manager */}
@@ -634,7 +634,7 @@ export const DashboardOverview: React.FC = () => {
                                     </svg>
                                 </div>
                                 <div className="ml-4">
-                                    <h3 className="text-lg font-semibold text-gray-900">Approved Demands</h3>
+                                    <h3 className="text-lg font-semibold text-gray-900">Demandes approuvées</h3>
                                     <p className="text-2xl font-bold text-blue-600">
                                         {demands.filter(d => d.status === 'TECHNICIAN_APPROVED').length}
                                     </p>
@@ -650,7 +650,7 @@ export const DashboardOverview: React.FC = () => {
                                     </svg>
                                 </div>
                                 <div className="ml-4">
-                                    <h3 className="text-lg font-semibold text-gray-900">Quotes with Files</h3>
+                                    <h3 className="text-lg font-semibold text-gray-900">Devis avec fichiers</h3>
                                     <p className="text-2xl font-bold text-green-600">
                                         {quotes.filter(q => q.attachedFiles && q.attachedFiles.length > 0).length}
                                     </p>
@@ -666,7 +666,7 @@ export const DashboardOverview: React.FC = () => {
                                     </svg>
                                 </div>
                                 <div className="ml-4">
-                                    <h3 className="text-lg font-semibold text-gray-900">Pending Files</h3>
+                                    <h3 className="text-lg font-semibold text-gray-900">Fichiers en attente</h3>
                                     <p className="text-2xl font-bold text-yellow-600">
                                         {quotes.filter(q => !q.attachedFiles || q.attachedFiles.length === 0).length}
                                     </p>
@@ -678,17 +678,17 @@ export const DashboardOverview: React.FC = () => {
                     {/* Approved Demands Table */}
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
                         <div className="px-6 py-4 border-b border-gray-200">
-                            <h2 className="text-lg font-semibold text-gray-900">Approved Demands Ready for File Attachment</h2>
-                            <p className="text-sm text-gray-600 mt-1">Demands approved by technicians with quotes that need file attachments</p>
+                            <h2 className="text-lg font-semibold text-gray-900">Demandes approuvées prêtes pour la pièce jointe de fichiers</h2>
+                            <p className="text-sm text-gray-600 mt-1">Demandes approuvées par les techniciens avec des devis nécessitant des pièces jointes</p>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Demand</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quote ID</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File Status</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Demande</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID de devis</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut du fichier</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
@@ -719,14 +719,14 @@ export const DashboardOverview: React.FC = () => {
                                                                 <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                                 </svg>
-                                                                File Attached
+                                                                Fichiers attachés
                                                             </span>
                                                         ) : (
                                                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                                                 <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                                 </svg>
-                                                                Needs File
+                                                                En attente de fichiers
                                                             </span>
                                                         )}
                                                     </td>
@@ -746,7 +746,7 @@ export const DashboardOverview: React.FC = () => {
                                                                 }}
                                                                 className="text-green-600 hover:text-green-900 transition-colors"
                                                             >
-                                                                Attach File
+                                                                Ajouter Fichier
                                                             </button>
                                                         )}
                                                         {quote.attachedFiles && quote.attachedFiles.length > 0 && (
@@ -757,7 +757,7 @@ export const DashboardOverview: React.FC = () => {
                                                                 }}
                                                                 className="text-purple-600 hover:text-purple-900 transition-colors"
                                                             >
-                                                                View Quote
+                                                                Voir le devis
                                                             </button>
                                                         )}
                                                     </td>
@@ -776,11 +776,11 @@ export const DashboardOverview: React.FC = () => {
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        No quotes yet
+                                                        Pas de devis pour le moment
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                            Waiting for quotes
+                                                            En attente de devis
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -801,8 +801,8 @@ export const DashboardOverview: React.FC = () => {
                                                     <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                     </svg>
-                                                    <p className="text-lg font-medium">No approved demands found</p>
-                                                    <p className="text-sm">Approved demands by technicians will appear here</p>
+                                                    <p className="text-lg font-medium">Aucune demande approuvée trouvée</p>
+                                                    <p className="text-sm">Les demandes approuvées par les techniciens apparaîtront ici</p>
                                                 </div>
                                             </td>
                                         </tr>

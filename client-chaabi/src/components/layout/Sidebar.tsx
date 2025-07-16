@@ -164,10 +164,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     </div>
                     <div className="ml-3">
                         <div className="text-sm font-medium text-white">{user?.name}</div>
-                        <div className="text-xs text-gray-400 capitalize">{user?.role}</div>
+                        <div className="text-xs text-gray-400 capitalize">{getRoleFrenchName(user?.role)}</div>
                     </div>
                 </div>
             </div>
         </div>
     );
 };
+
+const getRoleFrenchName = (role?: string) => {
+    switch (role?.toLowerCase()) {
+      case 'agent':
+        return 'Agent';
+      case 'responsible':
+        return 'Responsable';
+      case 'admin':
+        return 'Admin';
+      case 'technician':
+        return 'Technicien';
+      case 'provider':
+        return 'Prestataire';
+      case 'manager':
+        return 'Gestionnaire';
+      default:
+        return role;
+    }
+  };

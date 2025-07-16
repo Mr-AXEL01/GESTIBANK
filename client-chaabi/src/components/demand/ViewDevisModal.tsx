@@ -42,24 +42,19 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Total Amount</label>
-                  <p className="mt-1 text-lg font-semibold text-green-600">€{devis.totalAmount.toFixed(2)}</p>
+                  <label className="block text-sm font-medium text-gray-700">Prix Total</label>
+                  <p className="mt-1 text-lg font-semibold text-green-600">{devis.totalAmount.toFixed(2)} MAD</p>
                 </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Status</label>
-                  <span className={`mt-1 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    devis.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
-                    devis.status === 'CREATED' ? 'bg-yellow-100 text-yellow-800' :
-                    devis.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {devis.status}
+                  <span className="mt-1 inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                    {getStatusBadge(devis.status)}
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Created Date</label>
+                  <label className="block text-sm font-medium text-gray-700">Date de création</label>
                   <p className="mt-1 text-sm text-gray-900">
                     {new Date(devis.createdAt).toLocaleString()}
                   </p>
@@ -67,7 +62,7 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
 
                 {devis.updatedAt && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Last Updated</label>
+                    <label className="block text-sm font-medium text-gray-700">Dernière mise à jour</label>
                     <p className="mt-1 text-sm text-gray-900">
                       {new Date(devis.updatedAt).toLocaleString()}
                     </p>
@@ -78,7 +73,7 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
 
             {/* Provider Information */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Provider Information</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Informations sur le Prestataire</h3>
               <div className="space-y-3">
                 {(() => {
                   const providerInfo = devis.provider || devis.createdBy;
@@ -86,11 +81,11 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
                     return (
                       <>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">Provider Name</label>
+                          <label className="block text-sm font-medium text-gray-700">Nom du Prestataire</label>
                           <p className="mt-1 text-sm text-gray-900">
                             {providerInfo.firstName && providerInfo.lastName 
                               ? `${providerInfo.firstName} ${providerInfo.lastName}`
-                              : providerInfo.email || 'Unknown Provider'
+                              : providerInfo.email || 'Prestataire Inconnu'
                             }
                           </p>
                         </div>
@@ -102,7 +97,7 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
                       </>
                     );
                   } else {
-                    return <p className="text-sm text-gray-500">No provider information available</p>;
+                    return <p className="text-sm text-gray-500">Aucune information sur le prestataire disponible</p>;
                   }
                 })()}
               </div>
@@ -112,10 +107,10 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
           {/* Associated Demand Information */}
           {devis.demand && (
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Associated Demand</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Demande Associée</h3>
               <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Demand Title</label>
+                  <label className="block text-sm font-medium text-gray-700">Demande Titre</label>
                   <p className="mt-1 text-sm text-gray-900">{devis.demand.title}</p>
                 </div>
                 
@@ -127,7 +122,7 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Demand Status</label>
+                  <label className="block text-sm font-medium text-gray-700">Demande Status</label>
                   <span className={`mt-1 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                     devis.demand.status === 'TECHNICIAN_APPROVED' ? 'bg-green-100 text-green-800' :
                     devis.demand.status === 'RESPONSIBLE_APPROVED' ? 'bg-blue-100 text-blue-800' :
@@ -140,7 +135,7 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
 
                 {devis.demand.createdBy && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Requested By</label>
+                    <label className="block text-sm font-medium text-gray-700">Demandé par</label>
                     <p className="mt-1 text-sm text-gray-900">
                       {devis.demand.createdBy.firstName} {devis.demand.createdBy.lastName} ({devis.demand.createdBy.email})
                     </p>
@@ -152,7 +147,7 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
 
           {/* Attached Files Section */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="text-lg font-medium text-gray-900 mb-4">Attached Files</h4>
+            <h4 className="text-lg font-medium text-gray-900 mb-4">fichiers joints</h4>
             <div className="space-y-3">
               {devis.bonCommand ? (
                 <div className="flex items-center justify-between bg-white p-3 rounded border">
@@ -167,7 +162,7 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
                         Bon de Commande
                       </p>
                       <p className="text-sm text-gray-500">
-                        Attached by Manager
+                        Joint par le Responsable
                       </p>
                     </div>
                   </div>
@@ -181,7 +176,7 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                      Download
+                      Télécharger
                     </a>
                   </div>
                 </div>
@@ -199,7 +194,7 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
                           {file.fileName}
                         </p>
                         <p className="text-sm text-gray-500">
-                          Uploaded on {new Date(file.uploadedAt).toLocaleDateString()}
+                          Téléchargé le {new Date(file.uploadedAt).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -213,7 +208,7 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        Download
+                        Télécharger
                       </a>
                     </div>
                   </div>
@@ -223,7 +218,7 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
                   <svg className="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <p className="text-sm">No files attached to this quote</p>
+                  <p className="text-sm">no fichiers joints à ce devis</p>
                 </div>
               )}
             </div>
@@ -236,10 +231,28 @@ export const ViewDevisModal: React.FC<ViewDevisModalProps> = ({ isOpen, onClose,
             onClick={onClose}
             className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
           >
-            Close
+            Fermer
           </button>
         </div>
       </div>
     </div>
   );
 };
+
+const getStatusBadge = (status: string) => {
+    const config = {
+  CREATED: { color: 'bg-orange-400 text-white border-yellow-200', label: 'Créée' },
+  APPROVED: { color: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Approuvée (Responsable)' },
+  REJECTED: { color: 'bg-red-100 text-red-800 border-red-200', label: 'Rejetée (Responsable)' },
+  IN_PROGRESS: { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', label: 'En cours' },
+  DONE: { color: 'bg-green-200 text-green-900 border-green-300', label: 'Terminée' }
+};
+
+const statusConfig = config[status as keyof typeof config] || config.CREATED;
+    
+    return (
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusConfig.color}`}>
+        {statusConfig.label}
+      </span>
+    );
+  };

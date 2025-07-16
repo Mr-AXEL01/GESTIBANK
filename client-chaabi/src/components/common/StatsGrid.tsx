@@ -195,9 +195,9 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ customStats }) => {
         if ((user?.role === 'agent' || user?.role === 'responsible') && statistics) {
             return [
                 {
-                    title: user?.role === 'agent' ? 'My Demands Created' : 'Total Demands Created',
+                    title: user?.role === 'agent' ? 'Mes Demandes Créées' : 'Demandes Totales Créées',
                     value: statistics.totalDemandsCreated.toString(),
-                    subtitle: user?.role === 'agent' ? 'Total submitted' : 'All time',
+                    subtitle: user?.role === 'agent' ? 'Total soumis' : 'Tout le temps',
                     color: 'orange',
                     icon: (
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,9 +206,9 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ customStats }) => {
                     )
                 },
                 {
-                    title: 'Completed Demands',
+                    title: 'Demandes Complétées',
                     value: statistics.totalClosedDemands.toString(),
-                    subtitle: 'Successfully processed',
+                    subtitle: 'Traitement réussi',
                     color: 'green',
                     icon: (
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,9 +217,9 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ customStats }) => {
                     )
                 },
                 {
-                    title: user?.role === 'agent' ? 'Pending Requests' : 'Pending Demands',
+                    title: user?.role === 'agent' ? 'Demandes En Attente' : 'Demandes En Attente',
                     value: statistics.pendingDemands.toString(),
-                    subtitle: 'Under review',
+                    subtitle: 'En attente de révision',
                     color: 'amber',
                     icon: (
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,9 +228,9 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ customStats }) => {
                     )
                 },
                 {
-                    title: user?.role === 'agent' ? 'Rejected Requests' : 'Rejected Demands',
+                    title: user?.role === 'agent' ? 'Demandes Rejetées' : 'Demandes Rejetées',
                     value: statistics.rejectedDemands.toString(),
-                    subtitle: 'Need revision',
+                    subtitle: 'Nécessite une révision',
                     color: 'red',
                     icon: (
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
