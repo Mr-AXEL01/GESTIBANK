@@ -54,7 +54,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({ customStats }) => {
         if (user?.role === 'technician' && technicianStats) {
             return [
                 {
-                    title: 'Demands To Validate',
+                    title: 'Demandes validées',
                     value: technicianStats.totalDemandsToValidated.toString(),
                     subtitle: 'Pending validation',
                     color: 'orange',

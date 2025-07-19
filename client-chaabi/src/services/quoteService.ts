@@ -19,6 +19,7 @@ export interface QuoteValidationRequest {
 }
 
 export interface Quote {
+  createdBy: any;
   id: number;
   totalAmount: number;
   demandId: number;

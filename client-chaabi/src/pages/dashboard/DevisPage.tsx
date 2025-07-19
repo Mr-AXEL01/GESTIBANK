@@ -401,7 +401,7 @@ export const DevisPage: React.FC = () => {
             </h2>
             <p className="text-sm text-gray-600 mt-1">
               {user.role === 'technician' 
-                ? 'Examiner et gérer toutes les devis des fournisseurs'
+                ? 'Examiner et gérer toutes les devis des prestataires'
                 : 'Suivre vos devis soumis et leur statut d\'approbation'
               }
             </p>
